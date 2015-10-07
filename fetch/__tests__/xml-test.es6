@@ -2,8 +2,7 @@ import fetchMock from 'fetch-mock/client';
 import test from 'tape';
 import xml from '../xml';
 
-
-test('fetch #xml', async t => {
+test('fetch #xml', t => {
   fetchMock.mock({
     routes: {
       name: 'xml',
@@ -17,11 +16,12 @@ test('fetch #xml', async t => {
     }
   });
 
-  const res = await xml('https://some.xml')
-  t.notEquals(res.documentElement.nodeName, 'HTML', 'is not HTML');
-  t.ok(res.querySelector('some').getAttribute('xml'), 'has some value');
+  xml('https://some.xml').then(res => {
+    t.notEquals(res.documentElement.nodeName, 'HTML', 'is not HTML');
+    t.ok(res.querySelector('some').getAttribute('xml'), 'has some value');
 
-  fetchMock.restore();
+    fetchMock.restore();
 
-  t.end();
+    t.end();
+  });
 });

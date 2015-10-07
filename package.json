@@ -3,6 +3,9 @@
   "description": "A modern and modular ePub parser",
   "main": "index.js",
   "scripts": {
+    "build": "babel --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
+    "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
+    "prepublish": "npm run build",
     "test": "browserify --extension .es6 __tests__/index.es6 | tape-run",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -35,19 +38,11 @@
     "tape-run": "^1.1.0"
   },
   "dependencies": {
-    "babel-runtime": "^5.8.25",
     "whatwg-fetch": "^0.9.0"
   },
   "browserify": {
     "transform": [
-      [
-        "babelify",
-        {
-          "optional": [
-            "runtime"
-          ]
-        }
-      ]
+      "babelify"
     ]
   }
 }

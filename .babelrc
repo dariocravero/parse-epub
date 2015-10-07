@@ -1,7 +1,4 @@
 {
   "loose": "all",
-  "stage": 0,
-  "optional": [
-    "regenerator"
-  ]
+  "stage": 0
 }

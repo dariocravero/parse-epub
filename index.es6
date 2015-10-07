@@ -1,24 +1,17 @@
 import * as extract from './extract';
 import * as fetch from './fetch';
 
-export default async function parse(uri) {
-  try {
-    const containerXml = await fetch.containerXml(uri);
-    const rootFile = extract.rootFile(containerXml);
-    const rootXml = await fetch.rootXml(uri, rootFile);
-    const manifest = extract.manifest(rootXml);
-    const metadata = extract.metadata(rootXml, manifest);
-    const spine = extract.spine(rootXml, manifest);
+export default function parse(uri) {
+  return fetch.containerXml(uri)
+    .then(containerXml => extract.rootFile(containerXml))
+    .then(rootFile => fetch.rootXml(uri, rootFile))
+    .then(rootXml => {
+      const manifest = extract.manifest(rootXml);
 
-    return {
-      manifest,
-      metadata,
-      rootFile,
-      rootXml,
-      spine,
-      uri
-    };
-  } catch(exception) {
-    console.error(exception);
-  }
+      return {
+        manifest,
+        metadata: extract.metadata(rootXml, manifest),
+        spine: extract.spine(rootXml, manifest)
+      };
+    });
 }

@@ -2,7 +2,7 @@ import fetchMock from 'fetch-mock/client';
 import test from 'tape';
 import rootXml from '../root-xml';
 
-test('fetch #rootXml', async t => {
+test('fetch #rootXml', t => {
   fetchMock.mock({
     routes: {
       name: 'root-file',
@@ -18,9 +18,10 @@ test('fetch #rootXml', async t => {
     }
   });
 
-  const res = await rootXml('https://book.com', 'META-INF/container.xml');
-  t.equals(res.querySelector('rootfile').getAttribute('full-path'), 'OPS/package.opf');
+  rootXml('https://book.com', 'META-INF/container.xml').then(res => {
+    t.equals(res.querySelector('rootfile').getAttribute('full-path'), 'OPS/package.opf');
 
-  fetchMock.restore();
-  t.end();
+    fetchMock.restore();
+    t.end();
+  });
 });
