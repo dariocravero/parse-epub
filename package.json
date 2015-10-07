@@ -1,0 +1,53 @@
+{
+  "name": "parse-epub",
+  "description": "A modern and modular ePub parser",
+  "main": "index.js",
+  "scripts": {
+    "test": "browserify --extension .es6 __tests__/index.es6 | tape-run",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dariocravero/parse-epub.git"
+  },
+  "keywords": [
+    "epub",
+    "parse",
+    "parser"
+  ],
+  "author": "Darío Javier Cravero <dario@uxtemple.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dariocravero/parse-epub/issues"
+  },
+  "homepage": "https://github.com/dariocravero/parse-epub#readme",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "babel-eslint": "^4.1.3",
+    "babelify": "^6.3.0",
+    "browserify": "^11.2.0",
+    "core-js": "^1.2.1",
+    "fetch-mock": "^1.5.2",
+    "jsdom": "^6.5.1",
+    "node-static": "^0.7.7",
+    "semantic-release": "^4.3.5",
+    "tape": "^4.2.1",
+    "tape-run": "^1.1.0"
+  },
+  "dependencies": {
+    "babel-runtime": "^5.8.25",
+    "whatwg-fetch": "^0.9.0"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "optional": [
+            "runtime"
+          ]
+        }
+      ]
+    ]
+  }
+}
