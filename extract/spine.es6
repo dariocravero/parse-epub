@@ -21,7 +21,7 @@ export default function spine(rootXml, manifest) {
       media_type: mitem.mediaType // for readium
       // linear: item.linear === YES // TODO Replace. Readium needs it to be a string.
     };
-  });
+  }).filter(item => typeof item.href === 'string' && item.href !== 'toc.xhtml');
 }
 
 // TODO
