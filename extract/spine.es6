@@ -1,3 +1,4 @@
+import 'core-js/modules/es6.array.find-index';
 import items from './items';
 
 const ATTRIBUTES = {
@@ -11,17 +12,15 @@ const YES = 'yes';
 
 export default function spine(rootXml, manifest) {
   return items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES).map(item => {
-    const mitem = manifest.find(mitem => mitem.id === item.id);
+    const manifestIndex = manifest.findIndex(mitem => mitem.id === item.id);
 
     return {
-      ...mitem, // for readium
-      ...item,
-      idref: item.id, // for readium
-      media_overlay_id: mitem.mediaOverlay, // for readium
-      media_type: mitem.mediaType // for readium
-      // linear: item.linear === YES // TODO Replace. Readium needs it to be a string.
-    };
-  }).filter(item => typeof item.href === 'string' && item.href !== 'toc.xhtml');
+      id: item.id,
+      linear: item.linear === YES,
+      manifestIndex,
+      properties: item.properties
+    }
+  });
 }
 
 // TODO
