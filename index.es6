@@ -8,10 +8,12 @@ export default function parse(uri) {
     .then(rootXml => {
       const manifest = extract.manifest(rootXml);
 
-      return {
-        manifest,
-        metadata: extract.metadata(rootXml, manifest),
-        spine: extract.spine(rootXml, manifest)
-      };
+      return fetch.tocHtml(uri)
+        .then(tocHtml => ({
+          manifest,
+          metadata: extract.metadata(rootXml, manifest),
+          spine: extract.spine(rootXml, manifest),
+          toc: extract.toc(tocHtml, manifest)
+        }));
     });
 }
