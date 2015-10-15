@@ -1,5 +1,5 @@
-import 'core-js/modules/es6.array.find-index';
 import items from './items';
+import normalise from './normalise';
 
 const ATTRIBUTES = {
   id: 'idref',
@@ -10,17 +10,15 @@ const ITEM = 'itemref';
 const TAG = 'spine';
 const YES = 'yes';
 
-export default function spine(rootXml, manifest) {
-  return items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES).map(item => {
-    const manifestIndex = manifest.findIndex(mitem => mitem.id === item.id);
-
-    return {
-      id: item.id,
-      linear: item.linear === YES,
-      manifestIndex,
-      properties: item.properties
-    }
-  });
+export default function spine(rootXml) {
+  return normalise(
+    items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES)
+      .map(item => ({
+        id: item.id,
+        linear: item.linear === YES,
+        properties: item.properties
+      }))
+  );
 }
 
 // TODO

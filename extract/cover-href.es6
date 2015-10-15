@@ -1,15 +1,12 @@
-const COVER_HREF_REGEX = /cover-image/;
-
 export default function coverHref(manifest) {
-  let href;
+  const item =
+    manifest.byId['cover-item'] ||
+    manifest.byId['cover'] ||
+    manifest.byId[Object.keys(manifest.byId).find(id => /cover-image/.test(manifest.byId[id].properties))];
 
-  try {
-    href = manifest.find(item => COVER_HREF_REGEX.test(item.properties)).href;
-  } catch(exception) {
-    console.error(exception);
+  if (item) {
+    return item.href;
   }
-
-  return href;
 }
 
 // TODO

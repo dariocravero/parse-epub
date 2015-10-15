@@ -1,47 +1,68 @@
 import items from './items';
+import uniqueId from 'lodash/utility/uniqueId';
 
 const ATTRIBUTES = {
   id: 'idref',
   href: 'href'
 };
-const ITEM = 'li';
 const TAG = 'nav[id="toc"]';
+export const ROOT = '__root__';
 
-function isLi(node) {
-  return node.tagName === 'LI';
-}
-
-export default function toc(tocHtml, manifest) {
-  // map items by url in toc and url in manifest
-  // use manifest's id
-
+export default function toc(tocHtml, manifest, spine) {
   const byId = {};
+  const byManifestId = {};
+  const items = [];
 
-  parse(tocHtml.querySelector(TAG), '__root__');
+  parse(tocHtml.querySelector(TAG), ROOT);
 
-  function parse(snippet, href, label) {
-    const ol = snippet.querySelector('ol');
-    let childNodes = [];
+  function parse(snippet, id, href, label, parentId) {
+    const hrefWithoutHash = href && href.split('#')[0];
+    const manifestId = Object.keys(manifest.byId).find(id => manifest.byId[id].href === hrefWithoutHash);
 
-    if (ol) {
-      childNodes = Array.prototype.filter.call(ol.children, isLi)
-        .map(node => {
-          const link = node.querySelector('a');
-          const childHref = link.getAttribute('href').split('#')[0];
-          parse(node, childHref, link.textContent);
-          return childHref;
-        });
+    // Only process linear nodes
+    if (id === ROOT || spine.byId[manifestId].linear) {
+      const ol = snippet.querySelector('ol');
+      let childNodes = [];
+
+      if (ol) {
+        childNodes = Array.prototype.filter.call(ol.children, node => node.tagName === 'LI')
+          .map(node => {
+            const link = node.querySelector('a');
+            const childId = uniqueId();
+            return parse(node, childId, link.getAttribute('href'), link.textContent, id) && childId;
+          })
+          .filter(id => id);
+      }
+
+      const isLeaf = childNodes.length === 0;
+
+      // We mainly care about leafs as those are the ones that contain pages and are thus open
+      if (isLeaf) {
+        byManifestId[manifestId] = id;
+        items.push(id);
+      }
+
+      byId[id] = {
+        childNodes,
+        id,
+        isLeaf,
+        href,
+        label,
+        manifestId,
+        parentId
+      };
+
+      return true;
+    } else {
+      return false;
     }
-
-    byId[href] = {
-      childNodes,
-      href,
-      label,
-      manifestIndex: manifest.findIndex(mitem => mitem.href === href)
-    };
   }
 
-  return byId;
+  return {
+    byId,
+    byManifestId,
+    items
+  };
 }
 
 // TODO
