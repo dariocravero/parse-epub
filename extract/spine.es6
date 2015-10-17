@@ -1,4 +1,5 @@
 import items from './items';
+import normalise from './normalise';
 
 const ATTRIBUTES = {
   id: 'idref',
@@ -9,19 +10,15 @@ const ITEM = 'itemref';
 const TAG = 'spine';
 const YES = 'yes';
 
-export default function spine(rootXml, manifest) {
-  return items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES).map(item => {
-    const mitem = manifest.find(mitem => mitem.id === item.id);
-
-    return {
-      ...mitem, // for readium
-      ...item,
-      idref: item.id, // for readium
-      media_overlay_id: mitem.mediaOverlay, // for readium
-      media_type: mitem.mediaType // for readium
-      // linear: item.linear === YES // TODO Replace. Readium needs it to be a string.
-    };
-  }).filter(item => typeof item.href === 'string' && item.href !== 'toc.xhtml');
+export default function spine(rootXml) {
+  return normalise(
+    items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES)
+      .map(item => ({
+        id: item.id,
+        linear: item.linear === YES,
+        properties: item.properties
+      }))
+  );
 }
 
 // TODO

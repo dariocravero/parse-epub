@@ -1,4 +1,5 @@
 import items from './items';
+import normalise from './normalise';
 
 const ATTRIBUTES = {
   href: 'href',
@@ -11,7 +12,7 @@ const ITEM = 'item';
 const TAG = 'manifest';
 
 export default function manifest(rootXml) {
-  return items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES);
+  return normalise(items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES));
 }
 
 // TODO

@@ -1,5 +1,5 @@
 import xml from './xml';
 
-export default async function manifestItemXml(uri, source) {
-  return await xml(`${uri}/OPS/${source}`);
+export default function manifestItemXml(uri, source) {
+  return xml(`${uri}/OPS/${source}`);
 }
