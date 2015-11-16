@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+BIN=node_modules/.bin
+
+$BIN/browserify --extension .es6 $1 | $BIN/tape-run

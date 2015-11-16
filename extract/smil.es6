@@ -1,59 +1,37 @@
 import { manifestItemXml as fetchManifestItemXml } from '../fetch';
-import extractSmilData from './smil-data';
+// import extractSmilData from './smil-data';
 
 const SMIL_MEDIA_TYPE = 'application/smil+xml';
 
-// Smil files are declared in the manifest and are related to a spine item.
-export default async function smil(uri, spine, manifest, mediaOverlayDurations) {
-  // Reduce the manifest to smil entries only so the lookup is faster
-  const smilsInManifest = manifest.filter(item => item.mediaType === SMIL_MEDIA_TYPE);
-  let smils = [];
-
-  for (let item of spine) {
-    let ret;
-    if (item.mediaOverlay) {
-      // Get the matching manifest item
-      const manifestItem = smilsInManifest.find(mitem => mitem.id === item.mediaOverlay);
-      const refinement = mediaOverlayDurations.find(moditem => moditem.refines === `#${item.mediaOverlay}`);
-
-      if (manifestItem) {
-        try {
-          // Try to parse its contents
-          const manifestItemXml = await fetchManifestItemXml(uri, manifestItem.href);
-          ret = extractSmilData(manifestItemXml, manifestItem, item, refinement);
-        } catch(exception) {
-          console.error(exception);
-        }
-      } else {
-        console.error(`Can't find SMIL item ${item.mediaOverlay} in the manifest for spine item ${item.id}`);
-      }
-    }
-
-    // If the smil reference isn't there, insert a fakeSmil as Readium does. TODO Review this.
-    smils.push(ret || fakeSmil(item));
-  }
-
-  return smils;
+export function getSmilFromManifest(manifest) {
+  return manifest.items.filter(id => manifest.byId[id].mediaType === SMIL_MEDIA_TYPE);
 }
 
-// https://github.com/dariocravero/readium-js/blob/master/src/epub/smil-document-parser.js#L131
-function fakeSmil(item) {
-  return {
-    id: '',
-    href: '',
-    spineItemId: item.id,
-    children: [{
-      nodeType: 'seq',
-      textref: item.href,
-      children: [{
-        nodeType: 'par',
-        children: [{
-          nodeType: 'text',
-          src: item.href,
-          srcFile: item.href,
-          srcFragmentId: ''
-        }]
-      }]
-    }]
-  };
+export function fetchAll(uri, items, manifest) {
+  return Promise.all(
+    items.map(id => fetchManifestItemXml(uri, manifest.byId[id]))
+  );
+}
+
+export function parseAll(items, manifest, metadata) {
+  return function parseAllThunk(manifestItemsXml) {
+    const byId = {};
+
+    manifestItemsXml.forEach((xml, i) => {
+      const item = items[i];
+      const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${id}`);
+      byId[item.id] = extractSmilData(xml, manifestItem, item, refinement);
+    });
+
+    return {
+      byId,
+      items
+    };
+  }
+}
+
+export default function smil(uri, manifest, metadata) {
+  const items = getSmilFromManifest(manifest);
+
+  return fetchAll(uri, items, manifest).then(parseAll(items, manifest, metadata));
 }
