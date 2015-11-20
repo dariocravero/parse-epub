@@ -1,6 +1,4 @@
-const parser = new DOMParser();
-
-const FILES = {
+export default {
   's006-Chapter-001': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
     <body>
       <seq id="rw-body-Chapter_63900-928085414" epub:textref="s006-Chapter-001.xhtml" epub:type="bodymatter chapter">
@@ -54,10 +52,4 @@ const FILES = {
       </seq>
     </body>
   </smil>`
-}
-
-const SMILS = Object.keys(FILES).map(key => FILES[key]);
-
-export const parsedSmils = SMILS.map(file => parser.parseFromString(file, 'text/xml'));
-
-export { SMILS as default };
+};

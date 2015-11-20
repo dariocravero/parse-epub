@@ -1,6 +1,7 @@
+import 'core-js/modules/es6.array.find';
 import 'es6-promise';
 import { manifestItemXml as fetchManifestItemXml } from '../fetch';
-import { default as extractSmilData } from './smil-data';
+import extractSmilData from './smil-data';
 
 const SMIL_MEDIA_TYPE = 'application/smil+xml';
 
