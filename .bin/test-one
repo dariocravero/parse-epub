@@ -4,4 +4,7 @@ BIN=node_modules/.bin
 # $BIN/browserify --extension .es6 $1 | $BIN/tape-run
 
 # with chrome
-$BIN/browserify --extension .es6 $1 | $BIN/tape-run -b chrome
+# $BIN/browserify --extension .es6 $1 | $BIN/tape-run -b chrome
+
+# debug
+$BIN/browserify --extension .es6 $1 > public/bundle.js
