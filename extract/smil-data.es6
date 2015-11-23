@@ -11,29 +11,42 @@ const VERSION = 'version';
 export default function smilData(xml, manifestItem, spineItem, {clockValue}) {
   const smilXml = xml.querySelector(TAG);
   const children = extractChildren(smilXml);
-  const smilVersion = smilXml.getAttribute(VERSION);
+  //console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', JSON.stringify(children));
+  const version = smilXml.getAttribute(VERSION);
 
   let ret = {
     children,
-    href: manifestItem.href,
+    //href: manifestItem.href,
     id: manifestItem.id,
-    spineItemId: spineItem.id,
-    smilVersion
+    //spineItemId: spineItem.id,
+    version
   };
 
   if (clockValue) {
     ret.duration = parseClockValue(clockValue);
   }
-
+  console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', JSON.stringify(ret));
   return ret;
 }
 
 function extractChildren(xml) {
-  return Array.prototype.map.call(xml.childNodes, extractAttributes).filter(c => !!c);
+  console.log('xml', xml);
+  console.log('xml.childNodes', xml.childNodes);
+  //console.log('--->', Array.prototype.map.call(xml.childNodes, extractAttributes).filter(c => !!c));
+  return Array.prototype.map.call(xml.childNodes, extractAttributes).filter(c => {
+    //console.log('cccccccccc', c);
+    return !!c;
+  });
 }
 
 function extractAttributes(itemXml) {
   const node = NODES[itemXml.nodeName];
+
+  if(isNodeIgnorable(itemXml)) {
+    console.log('ignoring', itemXml);
+    return;
+  }
+
   let ret;
 
   if (node) {
@@ -87,7 +100,14 @@ function extractAttributes(itemXml) {
     // console.error(`${itemXml.tagName} isn't a valid smil data node`, itemXml);
   }
 
+  console.log('node', node, 'itemXml', itemXml, 'ret', ret);
+
   return ret;
+}
+
+function isNodeIgnorable(nod) {
+  return (nod.nodeType == 8) || // A comment node
+         ((nod.nodeType == 3) && !(/[^\t\n\r ]/.test(nod.textContent))); // a text node, constaining whitespace
 }
 
 const NODES = {
