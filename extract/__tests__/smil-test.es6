@@ -10,7 +10,11 @@ import smil, { getSmilFromManifest, fetchAll, parseAll } from '../smil';
 import uri from './fixtures/uri';
 import test from 'tape';
 
+
+const domParser = new DOMParser();
+
 test('#getSmilFromManifest', t => {
+  const smils = getSmilFromManifest(manifest);
   t.deepEquals(
     getSmilFromManifest(manifest),
     [ 'ch01', 'ch02' ]
@@ -23,11 +27,9 @@ test('#fetchAll', t => {
 
   const items = getSmilFromManifest(manifest);
   fetchAll(uri, items, manifest).then(results => {
-    console.log('results', results)
-    // TODO
-
+    t.equal(results[0].contentType, 'application/xml');
+    t.equal(results[1].contentType, 'application/xml');
     fetchMock.restore();
-
     t.end();
   }).catch(error => t.fail(error));
 });
@@ -41,10 +43,11 @@ test('#parseAll', t => {
 });
 
 test('#smil', t => {
-  const items = getSmilFromManifest(manifest);
+  fetchMock.mock({ routes });
   smil(uri, manifest, metadata).then(result => {
-    t.ok(!!result.byId);
-    t.ok(!!result.items);
+    t.ok(!!result.byId, 'it has byId');
+    t.ok(!!result.items, 'it has items');
+    fetchMock.restore();
     t.end();
-  }).catch(error => console.log(error));
+  }).catch(error => t.fail(error));
 });
