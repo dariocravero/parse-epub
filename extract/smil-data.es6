@@ -7,17 +7,15 @@ const TAG = 'smil';
 const TEXT = 'text';
 const VERSION = 'version';
 
-// TODO `smilVersion` could be `version` and the parsing of the `clockValue` could be deferred
+// TODO the parsing of the `clockValue` could be deferred
 // up to when its used. We put it in here to comply with Readium's data structure needs.
 export default function smilData(xml, id, {clockValue}) {
   const smilXml = xml.querySelector(TAG);
-  const children = extractChildren(smilXml);
-  const version = smilXml.getAttribute(VERSION);
 
-  let ret = {
-    children,
+  const ret = {
+    body: extractAttributes(smilXml.querySelector(BODY)),
     id,
-    version
+    version: smilXml.getAttribute(VERSION)
   };
 
   if (clockValue) {
@@ -26,9 +24,8 @@ export default function smilData(xml, id, {clockValue}) {
   return ret;
 }
 
-function extractChildren(xml) {
-  const filteredNodes = Array.prototype.filter.call(xml.childNodes, canIgnoreNode);
-  return Array.prototype.map.call(filteredNodes, extractAttributes);
+function extractChildNodes(xml) {
+  return Array.prototype.filter.call(xml.childNodes, canIgnoreNode).map(extractAttributes);
 }
 
 function extractAttributes(itemXml) {
@@ -80,8 +77,8 @@ function extractAttributes(itemXml) {
       }
     }
 
-    if (node.canHaveChildren) {
-      ret.children = extractChildren(itemXml);
+    if (node.canHavechildNodes) {
+      ret.childNodes = extractChildNodes(itemXml);
     }
   // } else {
     // TODO Review this edge case. Should we throw or silently fail?
@@ -93,7 +90,7 @@ function extractAttributes(itemXml) {
 
 const NODES = {
   'audio': {
-    canHaveChildren: false,
+    canHavechildNodes: false,
     type: 'audio',
     REQUIRED: {
       src: 'src'
@@ -105,7 +102,7 @@ const NODES = {
     }
   },
   'body': {
-    canHaveChildren: true,
+    canHavechildNodes: true,
     type: 'body',
     REQUIRED: {},
     OPTIONAL: {
@@ -115,7 +112,7 @@ const NODES = {
     }
   },
   'par': {
-    canHaveChildren: true,
+    canHavechildNodes: true,
     type: 'par',
     REQUIRED: {},
     OPTIONAL: {
@@ -124,7 +121,7 @@ const NODES = {
     }
   },
   'seq': {
-    canHaveChildren: true,
+    canHavechildNodes: true,
     type: 'seq',
     REQUIRED: {
       textref: 'epub:textref'
@@ -135,7 +132,7 @@ const NODES = {
     }
   },
   'text': {
-    canHaveChildren: false,
+    canHavechildNodes: false,
     type: 'text',
     REQUIRED: {
       src: 'src'
