@@ -11,5 +11,12 @@ parse(URI)
     parseSmil(URI, data.manifest, data.metadata)
       .then(smil => {
         console.log('parse-epub: smil data', smil);
+
+        window.$p = {
+          book: data,
+          smil
+        };
+
+        console.log('parse-epub: you can play with window.$p now', $p);
       });
   });

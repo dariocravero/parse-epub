@@ -3,6 +3,8 @@ import parseClockValue from './parse-clock-value';
 
 const AUDIO = 'audio';
 const BODY = 'body';
+const PAR = 'par';
+const SEQ = 'seq';
 const TAG = 'smil';
 const TEXT = 'text';
 const VERSION = 'version';
@@ -13,7 +15,7 @@ export default function smilData(xml, id, {clockValue}) {
   const smilXml = xml.querySelector(TAG);
 
   const ret = {
-    body: extractAttributes(smilXml.querySelector(BODY)),
+    body: parse(smilXml.querySelector(BODY)),
     id,
     version: smilXml.getAttribute(VERSION)
   };
@@ -24,65 +26,69 @@ export default function smilData(xml, id, {clockValue}) {
   return ret;
 }
 
-function extractChildNodes(xml) {
-  return Array.prototype.filter.call(xml.childNodes, canIgnoreNode).map(extractAttributes);
+function getValidChildNodes(xml) {
+  return Array.prototype.filter.call(xml.childNodes, canIgnoreNode);
 }
 
-function extractAttributes(itemXml) {
+function attrs(itemXml) {
   const node = NODES[itemXml.nodeName];
+  const ret = {};
 
+  function attr(key, attr, required) {
+    try {
+      const val = itemXml.getAttribute(attr);
+      if (val) {
+        ret[key] = val;
+      } else {
+        throw Exception(`Attribute tag ${attr} exists but there's no value.`);
+      }
+    } catch(exception) {
+      if (required) {
+        ret[key] = false;
+        console.error(`Can't get required attribute '${attr}' for key '${key}' on smil.`, itemXml);
+        console.error(exception);
+      }
+    }
+  }
+
+  Object.keys(node.OPTIONAL).forEach(key => attr(key, node.OPTIONAL[key], false));
+  Object.keys(node.REQUIRED).forEach(key => attr(key, node.REQUIRED[key], true));
+
+  return ret;
+}
+
+function parse(xml) {
   let ret;
 
-  if (node) {
-    // TODO Refactor together with metadata:38's fn
-    function attribute(key, attr, required) {
-      try {
-        let val = itemXml.getAttribute(attr);
-        if (val) {
-          ret[key] = val;
-        } else {
-          throw Exception(`Attribute tag ${attr} exists but there's no value.`);
-        }
-      } catch(exception) {
-        if (required) {
-          ret[key] = undefined;
-          console.error(`Can't get required attribute '${attr}' for key '${key}' on smil.`, itemXml);
-          console.error(exception);
-        }
-      }
-    }
+  switch(xml.nodeName) {
+  case AUDIO:
+    ret = attrs(xml);
+    ret.clipBegin = ret.clipBegin && parseClockValue(ret.clipBegin);
+    ret.clipEnd = ret.clipEnd && parseClockValue(ret.clipEnd);
+    break;
 
-    ret = {
-      nodeType: node.type
-    };
+  case PAR:
+    ret = attrs(xml);
+    ret.audio = parse(xml.querySelector(AUDIO));
+    ret.isPar = true;
+    ret.text = parse(xml.querySelector(TEXT));
+    break;
 
-    Object.keys(node.OPTIONAL).forEach(key => attribute(key, node.OPTIONAL[key], false));
-    Object.keys(node.REQUIRED).forEach(key => attribute(key, node.REQUIRED[key], true));
+  case BODY:
+  case SEQ:
+    ret = attrs(xml);
+    ret.childNodes = getValidChildNodes(xml).map(parse);
+    ret.isPar = false;
+    break;
 
-    // TODO Review. Readium seems to need this
-    // https://github.com/dariocravero/readium-js/blob/master/src/epub/smil-document-parser.js#L113-L115
-    // http://www.idpf.org/epub/linking/cfi/epub-cfi.html
-    if (ret.nodeType === TEXT) {
-      const [ srcFile, srcFragmentId ] = ret.src.split('#');
-      ret.srcFile = srcFile;
-      ret.srcFragmentId = srcFragmentId;
-    }
+  case TEXT:
+    ret = attrs(xml);
+    const [ srcFile, srcFragmentId ] = ret.src.split('#');
+    ret.srcFile = srcFile;
+    ret.srcFragmentId = srcFragmentId;
+    break;
 
-    if (ret.nodeType === AUDIO) {
-      if (ret.clipBegin) {
-        ret.clipBegin = parseClockValue(ret.clipBegin);
-      }
-      if (ret.clipEnd) {
-        ret.clipEnd = parseClockValue(ret.clipEnd);
-      }
-    }
-
-    if (node.canHavechildNodes) {
-      ret.childNodes = extractChildNodes(itemXml);
-    }
-  // } else {
-    // TODO Review this edge case. Should we throw or silently fail?
-    // console.error(`${itemXml.tagName} isn't a valid smil data node`, itemXml);
+  default: break;
   }
 
   return ret;
@@ -90,8 +96,6 @@ function extractAttributes(itemXml) {
 
 const NODES = {
   'audio': {
-    canHavechildNodes: false,
-    type: 'audio',
     REQUIRED: {
       src: 'src'
     },
@@ -102,8 +106,6 @@ const NODES = {
     }
   },
   'body': {
-    canHavechildNodes: true,
-    type: 'body',
     REQUIRED: {},
     OPTIONAL: {
       id: 'id',
@@ -112,8 +114,6 @@ const NODES = {
     }
   },
   'par': {
-    canHavechildNodes: true,
-    type: 'par',
     REQUIRED: {},
     OPTIONAL: {
       id: 'id',
@@ -121,8 +121,6 @@ const NODES = {
     }
   },
   'seq': {
-    canHavechildNodes: true,
-    type: 'seq',
     REQUIRED: {
       textref: 'epub:textref'
     },
@@ -132,8 +130,6 @@ const NODES = {
     }
   },
   'text': {
-    canHavechildNodes: false,
-    type: 'text',
     REQUIRED: {
       src: 'src'
     },
@@ -141,11 +137,4 @@ const NODES = {
       id: 'id'
     }
   }
-}
-
-// TODO
-// - Double check the spec on body and seq / par as it seems that par and seq are equals and by
-//   Readium's code it seems that body is a seq too? The code is implemented to follow Readium's way
-//   of doing it so we can reuse the MediaOverlayPlayer.
-//   https://github.com/dariocravero/readium-js/blob/master/src/epub/smil-document-parser.js#L90
-//   http://www.idpf.org/epub/30/spec/epub30-mediaoverlays.html#sec-smil-body-elem
+};
