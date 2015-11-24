@@ -1,3 +1,4 @@
+import canIgnoreNode  from './ignore-node';
 import parseClockValue from './parse-clock-value';
 
 const AUDIO = 'audio';
@@ -15,26 +16,17 @@ export default function smilData(xml, manifestItem, spineItem, {clockValue}) {
 
   let ret = {
     children,
-    //href: manifestItem.href,
     id: manifestItem.id,
-    //spineItemId: spineItem.id,
     version
   };
 
   if (clockValue) {
     ret.duration = parseClockValue(clockValue);
   }
-  console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', JSON.stringify(ret));
   return ret;
 }
 
 function extractChildren(xml) {
-  //return Array.prototype.map.call(xml.childNodes, extractAttributes).filter(c => !!c);
-
-  // Filter out textNodes containing whitespace and comments -
-  // https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Whitespace_in_the_DOM
-  // On test data the extractAttributes is called 17 times on each parsed smil document
-  // versus 42 times when not filtering the ignored nodes
   const filteredNodes = Array.prototype.filter.call(xml.childNodes, canIgnoreNode);
   return Array.prototype.map.call(filteredNodes, extractAttributes);
 }
@@ -67,14 +59,8 @@ function extractAttributes(itemXml) {
       nodeType: node.type
     };
 
-    Object.keys(node.OPTIONAL).forEach(key => {
-      console.log(node.type, 'key', key, 'node.OPTIONAL[key]', node.OPTIONAL[key])
-      attribute(key, node.OPTIONAL[key], false);
-    });
-    Object.keys(node.REQUIRED).forEach(key => {
-      console.log(node.type, 'key', key, 'node.REQUIRED[key]', node.REQUIRED[key])
-      attribute(key, node.REQUIRED[key], true)
-    });
+    Object.keys(node.OPTIONAL).forEach(key => attribute(key, node.OPTIONAL[key], false));
+    Object.keys(node.REQUIRED).forEach(key => attribute(key, node.REQUIRED[key], true));
 
     // TODO Review. Readium seems to need this
     // https://github.com/dariocravero/readium-js/blob/master/src/epub/smil-document-parser.js#L113-L115
@@ -102,15 +88,7 @@ function extractAttributes(itemXml) {
     // console.error(`${itemXml.tagName} isn't a valid smil data node`, itemXml);
   }
 
-  //console.log('node', node, 'itemXml', itemXml, 'ret', ret);
-  console.log('ret', ret);
-
   return ret;
-}
-
-function canIgnoreNode(nod) {
-  return !((nod.nodeType == 8) || // A comment node
-          ((nod.nodeType == 3) && !(/[^\t\n\r ]/.test(nod.textContent)))); // a text node, constaining whitespace
 }
 
 const NODES = {
@@ -128,7 +106,7 @@ const NODES = {
   },
   'body': {
     canHaveChildren: true,
-    type: 'seq',
+    type: 'body',
     REQUIRED: {},
     OPTIONAL: {
       id: 'id',
