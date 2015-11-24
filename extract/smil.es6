@@ -1,5 +1,4 @@
 import 'core-js/modules/es6.array.find';
-import 'es6-promise';
 import { manifestItemXml as fetchManifestItemXml } from '../fetch';
 import extractSmilData from './smil-data';
 
@@ -23,7 +22,7 @@ export function parseAll(items, manifest, metadata) {
     manifestItemsXml.forEach((xml, i) => {
       const id = items[i];
       const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${id}`);
-      byId[id] = extractSmilData(xml, manifest.byId, id, refinement);
+      byId[id] = extractSmilData(xml, id, refinement);
     });
 
     return {
@@ -36,5 +35,7 @@ export function parseAll(items, manifest, metadata) {
 export default function smil(uri, manifest, metadata) {
   const items = getSmilFromManifest(manifest);
 
-  return fetchAll(uri, items, manifest).then(parseAll(items, manifest, metadata));
+  return fetchAll(uri, items, manifest)
+    .then(values => parseAll(items, manifest, metadata)(values))
+    .catch(error => console.error(error));
 }

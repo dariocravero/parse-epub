@@ -1,90 +1,94 @@
+import canIgnoreNode  from './ignore-node';
 import parseClockValue from './parse-clock-value';
 
 const AUDIO = 'audio';
 const BODY = 'body';
+const PAR = 'par';
+const SEQ = 'seq';
 const TAG = 'smil';
 const TEXT = 'text';
 const VERSION = 'version';
 
-// TODO `smilVersion` could be `version` and the parsing of the `clockValue` could be deferred
+// TODO the parsing of the `clockValue` could be deferred
 // up to when its used. We put it in here to comply with Readium's data structure needs.
-export default function smilData(xml, manifestItem, spineItem, {clockValue}) {
+export default function smilData(xml, id, {clockValue}) {
   const smilXml = xml.querySelector(TAG);
-  const children = extractChildren(smilXml);
-  const smilVersion = smilXml.getAttribute(VERSION);
 
-  let ret = {
-    children,
-    href: manifestItem.href,
-    id: manifestItem.id,
-    spineItemId: spineItem.id,
-    smilVersion
+  const ret = {
+    body: parse(smilXml.querySelector(BODY)),
+    id,
+    version: smilXml.getAttribute(VERSION)
   };
 
   if (clockValue) {
     ret.duration = parseClockValue(clockValue);
   }
+  return ret;
+}
+
+function getValidChildNodes(xml) {
+  return Array.prototype.filter.call(xml.childNodes, canIgnoreNode);
+}
+
+function attrs(itemXml) {
+  const node = NODES[itemXml.nodeName];
+  const ret = {};
+
+  function attr(key, attr, required) {
+    try {
+      const val = itemXml.getAttribute(attr);
+      if (val) {
+        ret[key] = val;
+      } else {
+        throw Exception(`Attribute tag ${attr} exists but there's no value.`);
+      }
+    } catch(exception) {
+      if (required) {
+        ret[key] = false;
+        console.error(`Can't get required attribute '${attr}' for key '${key}' on smil.`, itemXml);
+        console.error(exception);
+      }
+    }
+  }
+
+  Object.keys(node.OPTIONAL).forEach(key => attr(key, node.OPTIONAL[key], false));
+  Object.keys(node.REQUIRED).forEach(key => attr(key, node.REQUIRED[key], true));
 
   return ret;
 }
 
-function extractChildren(xml) {
-  return Array.prototype.map.call(xml.childNodes, extractAttributes).filter(c => !!c);
-}
-
-function extractAttributes(itemXml) {
-  const node = NODES[itemXml.nodeName];
+function parse(xml) {
   let ret;
 
-  if (node) {
-    // TODO Refactor together with metadata:38's fn
-    function attribute(key, attr, required) {
-      try {
-        let val = itemXml.getAttribute(attr);
-        if (val) {
-          ret[key] = val;
-        } else {
-          throw Exception(`Attribute tag ${attr} exists but there's no value.`);
-        }
-      } catch(exception) {
-        if (required) {
-          ret[key] = undefined;
-          console.error(`Can't get required attribute '${attr}' for key '${key}' on smil.`, itemXml);
-          console.error(exception);
-        }
-      }
-    }
+  switch(xml.nodeName) {
+  case AUDIO:
+    ret = attrs(xml);
+    ret.clipBegin = ret.clipBegin && parseClockValue(ret.clipBegin);
+    ret.clipEnd = ret.clipEnd && parseClockValue(ret.clipEnd);
+    break;
 
-    ret = {
-      nodeType: node.type
-    };
+  case PAR:
+    ret = attrs(xml);
+    ret.audio = parse(xml.querySelector(AUDIO));
+    ret.isPar = true;
+    ret.text = parse(xml.querySelector(TEXT));
+    break;
 
-    Object.keys(node.OPTIONAL).forEach(key => attribute(key, node.OPTIONAL[key], false));
-    Object.keys(node.REQUIRED).forEach(key => attribute(key, node.REQUIRED[key], true));
+  case BODY:
+  case SEQ:
+    ret = attrs(xml);
+    ret.childNodes = getValidChildNodes(xml).map(parse);
+    ret.isPar = false;
+    break;
 
-    // TODO Review. Readium seems to need this
-    // https://github.com/dariocravero/readium-js/blob/master/src/epub/smil-document-parser.js#L113-L115
-    if (ret.nodeType === TEXT) {
-      const [ srcFile, srcFragmentId ] = ret.src.split('#');
-      ret.srcFile = srcFile;
-      ret.srcFragmentId = srcFragmentId;
-    }
+  case TEXT:
+    ret = attrs(xml);
+    const [ srcFile, srcFragmentId ] = ret.src.split('#');
+    ret.srcFile = srcFile;
+    ret.srcFragmentId = srcFragmentId;
+    break;
 
-    if (ret.nodeType === AUDIO) {
-      if (ret.clipBegin) {
-        ret.clipBegin = parseClockValue(ret.clipBegin);
-      }
-      if (ret.clipEnd) {
-        ret.clipEnd = parseClockValue(ret.clipEnd);
-      }
-    }
-
-    if (node.canHaveChildren) {
-      ret.children = extractChildren(itemXml);
-    }
-  // } else {
-    // TODO Review this edge case. Should we throw or silently fail?
-    // console.error(`${itemXml.tagName} isn't a valid smil data node`, itemXml);
+  default: break;
   }
 
   return ret;
@@ -92,8 +96,6 @@ function extractAttributes(itemXml) {
 
 const NODES = {
   'audio': {
-    canHaveChildren: false,
-    type: 'audio',
     REQUIRED: {
       src: 'src'
     },
@@ -104,8 +106,6 @@ const NODES = {
     }
   },
   'body': {
-    canHaveChildren: true,
-    type: 'seq',
     REQUIRED: {},
     OPTIONAL: {
       id: 'id',
@@ -114,8 +114,6 @@ const NODES = {
     }
   },
   'par': {
-    canHaveChildren: true,
-    type: 'par',
     REQUIRED: {},
     OPTIONAL: {
       id: 'id',
@@ -123,8 +121,6 @@ const NODES = {
     }
   },
   'seq': {
-    canHaveChildren: true,
-    type: 'seq',
     REQUIRED: {
       textref: 'epub:textref'
     },
@@ -134,8 +130,6 @@ const NODES = {
     }
   },
   'text': {
-    canHaveChildren: false,
-    type: 'text',
     REQUIRED: {
       src: 'src'
     },
@@ -143,11 +137,4 @@ const NODES = {
       id: 'id'
     }
   }
-}
-
-// TODO
-// - Double check the spec on body and seq / par as it seems that par and seq are equals and by
-//   Readium's code it seems that body is a seq too? The code is implemented to follow Readium's way
-//   of doing it so we can reuse the MediaOverlayPlayer.
-//   https://github.com/dariocravero/readium-js/blob/master/src/epub/smil-document-parser.js#L90
-//   http://www.idpf.org/epub/30/spec/epub30-mediaoverlays.html#sec-smil-body-elem
+};

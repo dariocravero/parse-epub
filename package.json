@@ -7,7 +7,8 @@
     "build:watch": "babel --watch --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
     "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
     "prepublish": "npm run build",
-    "test": "browserify --extension .es6 __tests__/index.es6 | tape-run",
+    "start": "watchify --extension .es6 --outfile playground/app.js playground/app.es6 & static playground --cache 0",
+    "test": "browserify --extension .es6 __tests__/index.es6 | tape-run2 -b chrome",
     "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -37,7 +38,8 @@
     "node-static": "^0.7.7",
     "semantic-release": "^4.3.5",
     "tape": "^4.2.1",
-    "tape-run": "^1.1.0"
+    "tape-run2": "^1.0.3",
+    "watchify": "^3.6.1"
   },
   "dependencies": {
     "es6-promise": "^3.0.2",

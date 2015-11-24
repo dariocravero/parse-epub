@@ -1,3 +1,4 @@
+import 'es6-promise';
 import * as extract from './extract';
 import * as fetch from './fetch';
 
@@ -17,4 +18,8 @@ export default function parse(uri) {
           toc: extract.toc(tocHtml, manifest, spine)
         }));
     });
+}
+
+export function parseSmil(uri, manifest, metadata) {
+  return extract.smil(uri, manifest, metadata);
 }

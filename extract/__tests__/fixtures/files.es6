@@ -26,7 +26,7 @@ export default {
     </body>
   </smil>`,
 
-  's006-Chapter-002': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+  's007-Chapter-002': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
     <body>
       <seq id="rw-body-Chapter_63901-155442565" epub:textref="s007-Chapter-002.xhtml" epub:type="bodymatter chapter">
         <par id="par1">
