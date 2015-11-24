@@ -1,5 +1,4 @@
 import 'core-js/modules/es6.array.find';
-import 'es6-promise';
 import { manifestItemXml as fetchManifestItemXml } from '../fetch';
 import extractSmilData from './smil-data';
 
