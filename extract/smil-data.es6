@@ -9,14 +9,14 @@ const VERSION = 'version';
 
 // TODO `smilVersion` could be `version` and the parsing of the `clockValue` could be deferred
 // up to when its used. We put it in here to comply with Readium's data structure needs.
-export default function smilData(xml, manifestItem, spineItem, {clockValue}) {
+export default function smilData(xml, id, {clockValue}) {
   const smilXml = xml.querySelector(TAG);
   const children = extractChildren(smilXml);
   const version = smilXml.getAttribute(VERSION);
 
   let ret = {
     children,
-    id: manifestItem.id,
+    id,
     version
   };
 

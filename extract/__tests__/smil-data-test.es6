@@ -32,7 +32,7 @@ test('TODO #smilData', t => {
   const manifestItem = manifest.byId;
   const id = getSmilFromManifest(manifest)[i];
   const refines = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${id}`);
-  const result = extractSmilData(xml, manifestItem, id, refines);
+  const result = extractSmilData(xml, id, refines);
   t.equal(result.children[0].nodeType, 'body', 'the 1st child of the root node is body');
   t.equal(result.children[0].children[0].nodeType, 'seq', 'the 1st child of the body is a seq');
   t.ok(result.children[0].children[0].textref, 'the seq has the required textref attribute');

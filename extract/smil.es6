@@ -22,7 +22,7 @@ export function parseAll(items, manifest, metadata) {
     manifestItemsXml.forEach((xml, i) => {
       const id = items[i];
       const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${id}`);
-      byId[id] = extractSmilData(xml, manifest.byId, id, refinement);
+      byId[id] = extractSmilData(xml, id, refinement);
     });
 
     return {
