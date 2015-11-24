@@ -37,8 +37,6 @@ export default function smil(uri, manifest, metadata) {
   const items = getSmilFromManifest(manifest);
 
   return fetchAll(uri, items, manifest)
-    .then(values => {
-      return parseAll(items, manifest, metadata)(values);
-    })
+    .then(values => parseAll(items, manifest, metadata)(values))
     .catch(error => console.error(error));
 }
