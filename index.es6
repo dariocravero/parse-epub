@@ -1,7 +1,7 @@
 import 'es6-promise';
 import * as extract from './extract';
 import * as fetch from './fetch';
-import getTocItem from './get-toc-item';
+import getTocItem from './extract/get-toc-item';
 
 export default function parse(uri) {
   return fetch.containerXml(uri)
