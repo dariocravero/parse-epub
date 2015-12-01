@@ -1,11 +1,9 @@
 import items from './items';
+import getTocItem from './get-toc-item';
 import uniqueId from 'lodash/utility/uniqueId';
 
-const ATTRIBUTES = {
-  id: 'idref',
-  href: 'href'
-};
 const TAG = 'nav[id="toc"]';
+
 export const ROOT = '__root__';
 
 export default function toc(tocHtml, manifest, spine) {
@@ -13,14 +11,16 @@ export default function toc(tocHtml, manifest, spine) {
   const byManifestId = {};
   const items = [];
 
+  const tocItem = getTocItem(manifest);
+
   parse(tocHtml.querySelector(TAG), ROOT);
 
   function parse(snippet, id, href, label, parentId) {
     const hrefWithoutHash = href && href.split('#')[0];
     const manifestId = Object.keys(manifest.byId).find(id => manifest.byId[id].href === hrefWithoutHash);
 
-    // Only process linear nodes
-    if (id === ROOT || spine.byId[manifestId].linear) {
+    // Don't include the TOC reference item in the spine
+    if (tocItem.id !== manifestId) {
       const ol = snippet.querySelector('ol');
       let childNodes = [];
 
@@ -48,6 +48,7 @@ export default function toc(tocHtml, manifest, spine) {
         isLeaf,
         href,
         label,
+        linear: snippet.getAttribute('linear'),
         manifestId,
         parentId
       };

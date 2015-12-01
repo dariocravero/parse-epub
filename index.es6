@@ -1,6 +1,7 @@
 import 'es6-promise';
 import * as extract from './extract';
 import * as fetch from './fetch';
+import getTocItem from './get-toc-item';
 
 export default function parse(uri) {
   return fetch.containerXml(uri)
@@ -10,7 +11,7 @@ export default function parse(uri) {
       const manifest = extract.manifest(rootXml);
       const spine = extract.spine(rootXml);
 
-      return fetch.tocHtml(uri)
+      return fetch.tocHtml(uri, getTocItem(manifest).href)
         .then(tocHtml => ({
           manifest,
           metadata: extract.metadata(rootXml, manifest),
