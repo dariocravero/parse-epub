@@ -1,26 +1,54 @@
 export default {
+  's001-BookTitlePage-01': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+    <body>
+      <seq id="rw-frontmatter-BookTitlePage_63898-586799792" epub:textref="s001-BookTitlePage-01.xhtml" epub:type="frontmatter title">
+        <par id="par1">
+          <text src="s001-BookTitlePage-01.xhtml#rw-h1_63898-593960241"/>
+          <audio clipBegin="0:00:00" clipEnd="0:00:01.973637" src="audio/s001-BookTitlePage-01.mp3"/>
+        </par>
+      </seq>
+    </body>
+  </smil>`,
+
+  's003-Introduction-01': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+    <body>
+      <seq id="rw-frontmatter-Introduction_68705-497760057" epub:textref="s003-Introduction-01.xhtml" epub:type="frontmatter introduction">
+        <par id="par1">
+          <text src="s003-Introduction-01.xhtml#azw1"/>
+          <audio clipBegin="0:00:00" src="audio/s003-Introduction-01.mp3" clipEnd="0:00:01.255248"/>
+        </par>
+      </seq>
+    </body>
+  </smil>`,
+
+  's004-Preface-01': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+    <body>
+      <seq id="rw-frontmatter-Preface_68307-236000873" epub:textref="s004-Preface-01.xhtml" epub:type="frontmatter preface">
+        <par id="par1">
+          <text src="s004-Preface-01.xhtml#azp1"/>
+          <audio clipBegin="0:00:00" clipEnd="0:00:02.162036" src="audio/s004-Preface-01.mp3"/>
+        </par>
+      </seq>
+    </body>
+  </smil>`,
+
+  's005-AboutTheAuthor-01': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+    <body>
+      <seq id="rw-frontmatter-AboutTheAuthor_64073-184096227" epub:textref="s005-AboutTheAuthor-01.xhtml" epub:type="frontmatter preface">
+        <par id="par1">
+          <text src="s005-AboutTheAuthor-01.xhtml#rw-h1_64073-419302264"/>
+          <audio clipBegin="0.000000" clipEnd="2.873351" src="audio/s005-AboutTheAuthor-01.mp3"/>
+        </par>
+      </seq>
+    </body>
+  </smil>`,
+
   's006-Chapter-001': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
     <body>
       <seq id="rw-body-Chapter_63900-928085414" epub:textref="s006-Chapter-001.xhtml" epub:type="bodymatter chapter">
         <par id="par1">
           <text src="s006-Chapter-001.xhtml#azg1"/>
           <audio clipBegin="0:00:00" clipEnd="0:00:02.341763" src="audio/s006-Chapter-001.mp3"/>
-        </par>
-        <par id="par2">
-          <text src="s006-Chapter-001.xhtml#azg2"/>
-          <audio clipBegin="0:00:02.341763" clipEnd="0:00:04.332070" src="audio/s006-Chapter-001.mp3"/>
-        </par>
-        <par id="par3">
-          <text src="s006-Chapter-001.xhtml#azg3"/>
-          <audio clipBegin="0:00:04.332070" clipEnd="0:00:08.026172" src="audio/s006-Chapter-001.mp3"/>
-        </par>
-        <par id="par4">
-          <text src="s006-Chapter-001.xhtml#azg4"/>
-          <audio clipBegin="0:00:08.026172" clipEnd="0:00:10.658267" src="audio/s006-Chapter-001.mp3"/>
-        </par>
-        <par id="par5">
-          <text src="s006-Chapter-001.xhtml#azg5"/>
-          <audio clipBegin="0:00:10.658267" clipEnd="0:00:18.077032" src="audio/s006-Chapter-001.mp3"/>
         </par>
       </seq>
     </body>
@@ -33,23 +61,41 @@ export default {
           <text src="s007-Chapter-002.xhtml#rw-title-num_63901-653425037"/>
           <audio clipBegin="0:00:00" clipEnd="0:00:01.703020" src="audio/s007-Chapter-002.mp3"/>
         </par>
-        <par id="par2">
-          <text src="s007-Chapter-002.xhtml#rw-h1_63901-763565068"/>
-          <audio clipBegin="0:00:01.710556" clipEnd="0:00:04.717426" src="audio/s007-Chapter-002.mp3"/>
+      </seq>
+    </body>
+  </smil>`,
+
+  's008-Chapter-003': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+    <body>
+      <seq id="rw-body-Chapter_63902-527714138" epub:textref="s008-Chapter-003.xhtml" epub:type="bodymatter chapter">
+        <par id="par1">
+          <text src="s008-Chapter-003.xhtml#rw-title-num_63902-820452204"/>
+          <audio clipBegin="0:00:00" clipEnd="0:00:01.634194" src="audio/s008-Chapter-003.mp3"/>
         </par>
-        <par id="par3">
-          <text src="s007-Chapter-002.xhtml#rw-p_63901-613767497"/>
-          <audio clipBegin="0:00:04.717215" clipEnd="0:00:23.721715" src="audio/s007-Chapter-002.mp3"/>
+      </seq>
+    </body>
+  </smil>`,
+
+  's009-Chapter-004': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+    <body>
+      <seq id="rw-body-Chapter_63903-108761772" epub:textref="s009-Chapter-004.xhtml" epub:type="bodymatter chapter">
+        <par id="par1">
+          <text src="s009-Chapter-004.xhtml#rw-title-num_63903-746001661"/>
+          <audio clipBegin="0:00:00" clipEnd="0:00:01.973719" src="audio/s009-Chapter-004.mp3"/>
         </par>
-        <par id="par4">
-          <text src="s007-Chapter-002.xhtml#rw-p_63901-916186270"/>
-          <audio clipBegin="0:00:23.721715" clipEnd="0:00:43.102990" src="audio/s007-Chapter-002.mp3"/>
-        </par>
-        <par id="par5">
-          <text src="s007-Chapter-002.xhtml#rw-p_63901-414184761"/>
-          <audio clipBegin="0:00:43.102990" clipEnd="0:00:52.597704" src="audio/s007-Chapter-002.mp3"/>
+      </seq>
+    </body>
+  </smil>`,
+
+  's010-Chapter-005': `<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+    <body>
+      <seq id="rw-body-Chapter_63904-537394094" epub:textref="s010-Chapter-005.xhtml" epub:type="bodymatter chapter">
+        <par id="par1">
+          <text src="s010-Chapter-005.xhtml#azg1"/>
+          <audio clipBegin="0:00:00" clipEnd="0:00:01.822766" src="audio/s010-Chapter-005.mp3"/>
         </par>
       </seq>
     </body>
   </smil>`
+
 };

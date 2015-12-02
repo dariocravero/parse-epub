@@ -13,7 +13,7 @@ export default parseRawXml(`<?xml version="1.0" encoding="UTF-8"?>
     <dc:publisher>Infogrid Pacific</dc:publisher>
     <dc:subject>Fiction</dc:subject>
     <dc:type>Book</dc:type>
-    
+
     <!--MEDIA OVERLAY METADATA-->
     <meta property="media:duration" refines="#btitle">0:0:03</meta>
     <meta property="media:duration" refines="#intro">0:3:25</meta>
@@ -27,7 +27,7 @@ export default parseRawXml(`<?xml version="1.0" encoding="UTF-8"?>
     <meta property="media:duration">3:3:32</meta>
     <meta property="media:narrator">LibriVox Team</meta>
     <meta property="media:active-class">correct</meta>
-    
+
 </metadata>
 <manifest>
     <item id="toc" properties="nav" href="TOC.xhtml" media-type="application/xhtml+xml"/>
@@ -43,7 +43,7 @@ export default parseRawXml(`<?xml version="1.0" encoding="UTF-8"?>
     <item id="s008" href="s008-Chapter-003.xhtml" media-type="application/xhtml+xml" media-overlay="ch03"/>
     <item id="s009" href="s009-Chapter-004.xhtml" media-type="application/xhtml+xml" media-overlay="ch04"/>
     <item id="s010" href="s010-Chapter-005.xhtml" media-type="application/xhtml+xml" media-overlay="ch05"/>
-    
+
     <item id="btitle" href="s001-BookTitlePage-01.smil" media-type="application/smil+xml"/>
     <item id="intro" href="s003-Introduction-01.smil" media-type="application/smil+xml"/>
     <item id="preface" href="s004-Preface-01.smil" media-type="application/smil+xml"/>
@@ -53,7 +53,7 @@ export default parseRawXml(`<?xml version="1.0" encoding="UTF-8"?>
     <item id="ch03" href="s008-Chapter-003.smil" media-type="application/smil+xml"/>
     <item id="ch04" href="s009-Chapter-004.smil" media-type="application/smil+xml"/>
     <item id="ch05" href="s010-Chapter-005.smil" media-type="application/smil+xml"/>
-    
+
     <item id="audio01" href="audio/s001-BookTitlePage-01.mp3" fallback="audio02" media-type="audio/mpeg"/>
     <item id="audio02" href="audio/s001-BookTitlePage-01.ogg" media-type="audio/ogg"/>
     <item id="audio03" href="audio/s003-Introduction-01.mp3" fallback="audio04" media-type="audio/mpeg"/>
@@ -72,7 +72,7 @@ export default parseRawXml(`<?xml version="1.0" encoding="UTF-8"?>
     <item id="audio16" href="audio/s009-Chapter-004.ogg" media-type="audio/ogg"/>
     <item id="audio17" href="audio/s010-Chapter-005.mp3" fallback="audio18" media-type="audio/mpeg"/>
     <item id="audio18" href="audio/s010-Chapter-005.ogg" media-type="audio/ogg"/>
-    
+
     <item id="css-001" href="css/a-christmas-carol.css" media-type="text/css"/>
 </manifest>
 <spine page-progression-direction="ltr">
