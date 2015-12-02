@@ -1,11 +1,12 @@
 import canIgnoreNode  from '../ignore-node';
 import extractSmilData from '../smil-data';
-import { getSmilFromManifest } from '../smil';
+import { getMediaOverlayItems } from '../smil';
 import manifest from './fixtures/manifest';
 import metadata  from './fixtures/metadata';
 import parsedFiles from './fixtures/parsed-files';
 import parsedSmilData from './fixtures/parsed-smil-data';
 import test from 'tape';
+import uri from './fixtures/uri';
 
 test('#canIgnoreNode', t => {
   const ignoreTextNode = {
@@ -27,11 +28,11 @@ test('#canIgnoreNode', t => {
 });
 
 test('#smilData', t => {
-  const id = getSmilFromManifest(manifest)[0];
+  const id = getMediaOverlayItems(manifest)[0];
   const refines = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${id}`);
-
+  const extracted = extractSmilData(parsedFiles[0], id, refines, '.');
   t.deepEqual(
-    extractSmilData(parsedFiles[0], id, refines),
+    extracted,
     parsedSmilData
   );
   t.end()

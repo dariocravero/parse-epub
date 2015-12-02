@@ -1,28 +1,37 @@
 import 'core-js/modules/es6.array.find';
+import * as path from 'path-browserify';
 import { manifestItemXml as fetchManifestItemXml } from '../fetch';
 import extractSmilData from './smil-data';
 
 const SMIL_MEDIA_TYPE = 'application/smil+xml';
 
-export function getSmilFromManifest(manifest) {
-  return manifest.items.filter(id => manifest.byId[id].mediaType === SMIL_MEDIA_TYPE);
+// this filters and gets the spine items that have a media overlay associated
+// with it.
+export function getMediaOverlayItems(manifest) {
+  return manifest.items.filter(id => manifest.byId[id].mediaOverlay);
 }
 
 export function fetchAll(uri, items, manifest) {
   return Promise.all(
-    items.map(id => fetchManifestItemXml(uri, manifest.byId[id].href))
+    items.map(spineId => {
+      const smilId = manifest.byId[spineId].mediaOverlay;
+      const smilItem = manifest.byId[smilId];
+      return fetchManifestItemXml(uri, smilItem.href);
+    })
   );
 }
 
-export function parseAll(items, manifest, metadata) {
+export function parseAll(items, manifest, metadata, uri) {
   return function parseAllThunk(manifestItemsXml) {
     const byId = {};
     let i = 0;
 
     manifestItemsXml.forEach((xml, i) => {
-      const id = items[i];
-      const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${id}`);
-      byId[id] = extractSmilData(xml, id, refinement);
+      const spineId = items[i];
+      const smilId = manifest.byId[spineId].mediaOverlay;
+      const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${smilId}`);
+      const baseUri = path.dirname(manifest.byId[spineId].href);
+      byId[smilId] = extractSmilData(xml, smilId, refinement, baseUri);
     });
 
     return {
@@ -33,9 +42,8 @@ export function parseAll(items, manifest, metadata) {
 }
 
 export default function smil(uri, manifest, metadata) {
-  const items = getSmilFromManifest(manifest);
-
+  const items = getMediaOverlayItems(manifest);
   return fetchAll(uri, items, manifest)
-    .then(values => parseAll(items, manifest, metadata)(values))
+    .then(values => parseAll(items, manifest, metadata, uri)(values))
     .catch(error => console.error(error));
 }

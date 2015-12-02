@@ -91,6 +91,34 @@ export default {
             "mediaOverlay": "ch05",
             "properties": null
         },
+        "btitle": {
+            "href": "s001-BookTitlePage-01.smil",
+            "id": "btitle",
+            "mediaType": "application/smil+xml",
+            "mediaOverlay": null,
+            "properties": null
+        },
+        "intro": {
+            "href": "s003-Introduction-01.smil",
+            "id": "intro",
+            "mediaType": "application/smil+xml",
+            "mediaOverlay": null,
+            "properties": null
+        },
+        "preface": {
+            "href": "s004-Preface-01.smil",
+            "id": "preface",
+            "mediaType": "application/smil+xml",
+            "mediaOverlay": null,
+            "properties": null
+        },
+        "author": {
+            "href": "s005-AboutTheAuthor-01.smil",
+            "id": "author",
+            "mediaType": "application/smil+xml",
+            "mediaOverlay": null,
+            "properties": null
+        },
         "ch01": {
             "href": "s006-Chapter-001.smil",
             "id": "ch01",
@@ -101,6 +129,27 @@ export default {
         "ch02": {
             "href": "s007-Chapter-002.smil",
             "id": "ch02",
+            "mediaType": "application/smil+xml",
+            "mediaOverlay": null,
+            "properties": null
+        },
+        "ch03": {
+            "href": "s008-Chapter-003.smil",
+            "id": "ch03",
+            "mediaType": "application/smil+xml",
+            "mediaOverlay": null,
+            "properties": null
+        },
+        "ch04": {
+            "href": "s009-Chapter-004.smil",
+            "id": "ch04",
+            "mediaType": "application/smil+xml",
+            "mediaOverlay": null,
+            "properties": null
+        },
+        "ch05": {
+            "href": "s010-Chapter-005.smil",
+            "id": "ch05",
             "mediaType": "application/smil+xml",
             "mediaOverlay": null,
             "properties": null
@@ -253,8 +302,15 @@ export default {
         "s008",
         "s009",
         "s010",
+        "btitle",
+        "intro",
+        "preface",
+        "author",
         "ch01",
         "ch02",
+        "ch03",
+        "ch04",
+        "ch05",
         "audio01",
         "audio02",
         "audio03",

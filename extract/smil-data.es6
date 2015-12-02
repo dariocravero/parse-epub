@@ -1,5 +1,6 @@
 import canIgnoreNode  from './ignore-node';
 import parseClockValue from './parse-clock-value';
+import * as path from 'path-browserify';
 
 const AUDIO = 'audio';
 const BODY = 'body';
@@ -11,17 +12,17 @@ const VERSION = 'version';
 
 // TODO the parsing of the `clockValue` could be deferred
 // up to when its used. We put it in here to comply with Readium's data structure needs.
-export default function smilData(xml, id, {clockValue}) {
+export default function smilData(xml, id, refinement={}, baseUri) {
   const smilXml = xml.querySelector(TAG);
 
   const ret = {
-    body: parse(smilXml.querySelector(BODY)),
+    body: parse(smilXml.querySelector(BODY), baseUri),
     id,
     version: smilXml.getAttribute(VERSION)
   };
 
-  if (clockValue) {
-    ret.duration = parseClockValue(clockValue);
+  if (refinement.clockValue) {
+    ret.duration = parseClockValue(refinement.clockValue);
   }
   return ret;
 }
@@ -57,32 +58,42 @@ function attrs(itemXml) {
   return ret;
 }
 
-function parse(xml) {
+function resolvePath(baseUri, relativePath) {
+  return path.resolve(baseUri, relativePath);
+}
+
+function parse(xml, baseUri) {
   let ret;
 
   switch(xml.nodeName) {
   case AUDIO:
     ret = attrs(xml);
+    if(ret.src && !path.isAbsolute(ret.src)) {
+      ret.src = resolvePath(baseUri, ret.src);
+    }
     ret.clipBegin = ret.clipBegin && parseClockValue(ret.clipBegin);
     ret.clipEnd = ret.clipEnd && parseClockValue(ret.clipEnd);
     break;
 
   case PAR:
     ret = attrs(xml);
-    ret.audio = parse(xml.querySelector(AUDIO));
+    ret.audio = parse(xml.querySelector(AUDIO), baseUri);
     ret.isPar = true;
-    ret.text = parse(xml.querySelector(TEXT));
+    ret.text = parse(xml.querySelector(TEXT), baseUri);
     break;
 
   case BODY:
   case SEQ:
     ret = attrs(xml);
-    ret.childNodes = getValidChildNodes(xml).map(parse);
+    ret.childNodes = getValidChildNodes(xml).map(arr => parse(arr, baseUri));
     ret.isPar = false;
     break;
 
   case TEXT:
     ret = attrs(xml);
+    if(ret.src && !path.isAbsolute(ret.src)) {
+      ret.src = resolvePath(baseUri, ret.src);
+    }
     const [ srcFile, srcFragmentId ] = ret.src.split('#');
     ret.srcFile = srcFile;
     ret.srcFragmentId = srcFragmentId;

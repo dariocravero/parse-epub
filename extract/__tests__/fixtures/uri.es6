@@ -1,1 +1,1 @@
-export default `https://some.url.com`;
+export default 'https://some.url.com';
