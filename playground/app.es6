@@ -1,6 +1,6 @@
 import parse, { parseSmil } from '../index';
 
-const URI = '/books/xplor-g8-smil';
+const URI = '/books/demo';
 
 console.log('parse-epub: parsing book', URI);
 
