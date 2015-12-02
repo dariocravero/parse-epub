@@ -10,9 +10,10 @@ const ITEM = 'itemref';
 const TAG = 'spine';
 const YES = 'yes';
 
-export default function spine(rootXml) {
+export default function spine(rootXml, tocItem) {
   return normalise(
     items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES)
+      .filter(item => typeof tocItem === 'undefined' ? true : tocItem.id !== item.id)
       .map(item => ({
         id: item.id,
         linear: item.linear === YES,
