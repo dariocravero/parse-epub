@@ -1,4 +1,6 @@
-import 'es6-promise';
+if (typeof window.Promise === 'undefined') {
+  require('es6-promise').polyfill();
+}
 import * as extract from './extract';
 import * as fetch from './fetch';
 import getTocItem from './extract/get-toc-item';
