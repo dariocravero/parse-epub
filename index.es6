@@ -21,6 +21,15 @@ export default function parse(uri) {
           spine,
           toc: extract.toc(tocHtml, manifest, spine)
         }));
+    })
+    .catch(err => {
+      let nextErr = err;
+
+      if (/Cannot read property 'getAttribute' of null/.test(err.message)) {
+        nextErr = new Error(`We couldn't find a book at ${uri}.`);
+      }
+
+      throw nextErr;
     });
 }
 
