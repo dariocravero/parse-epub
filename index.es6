@@ -6,15 +6,21 @@ import * as fetch from './fetch';
 import getTocItem from './extract/get-toc-item';
 
 export default function parse(uri) {
+
+  let contentFolder;
+
   return fetch.containerXml(uri)
     .then(containerXml => extract.rootFile(containerXml))
-    .then(rootFile => fetch.rootXml(uri, rootFile))
+    .then(rootFile => { 
+      contentFolder = rootFile;
+      return fetch.rootXml(uri, rootFile) 
+    })
     .then(rootXml => {
       const manifest = extract.manifest(rootXml);
       const tocItem = getTocItem(manifest);
       const spine = extract.spine(rootXml, tocItem);
 
-      return fetch.tocHtml(uri, tocItem.href)
+      return fetch.tocHtml(uri, tocItem.href, contentFolder.split('/')[0])
         .then(tocHtml => ({
           manifest,
           metadata: extract.metadata(rootXml, manifest),
