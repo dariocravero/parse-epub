@@ -19,9 +19,9 @@ export default function parse(uri) {
 
       return fetchTocHtml(uri, tocItem.href)
         .then(tocHtml => ({
-          manifest,
+          manifest: manifest,
           metadata: extractMetadata(rootXml, manifest),
-          spine,
+          spine: spine,
           toc: extractToc(tocHtml, manifest, spine)
         }));
     })

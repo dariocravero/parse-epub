@@ -17,7 +17,7 @@ export function fetchAll(uri, items, manifest) {
       const smilId = manifest.byId[spineId].mediaOverlay;
       const smilItem = manifest.byId[smilId];
       return fetchManifestItemXml(uri, smilItem.href);
-    })
+    });
   );
 }
 

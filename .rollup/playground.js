@@ -15,7 +15,8 @@ export default {
         "transform-async-to-generator",
         "transform-es2015-destructuring",
         "transform-export-extensions",
-        "transform-object-rest-spread"
+        "transform-object-rest-spread",
+        "transform-es2015-parameters"
       ],
       runtimeHelpers: true
     }),

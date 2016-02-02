@@ -217,7 +217,7 @@ function getTocItem(manifest) {
   return manifest.byId[tocManifestId];
 }
 
-var index$4 = __commonjs(function (module) {
+var index$3 = __commonjs(function (module) {
 /**
  * lodash 4.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -265,9 +265,9 @@ function isKeyable(value) {
 module.exports = cacheHas;
 });
 
-var require$$0 = (index$4 && typeof index$4 === 'object' && 'default' in index$4 ? index$4['default'] : index$4);
+var require$$0 = (index$3 && typeof index$3 === 'object' && 'default' in index$3 ? index$3['default'] : index$3);
 
-var index$3 = __commonjs(function (module) {
+var index$5 = __commonjs(function (module) {
 /**
  * lodash 4.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -302,9 +302,9 @@ function arrayIncludesWith(array, value, comparator) {
 module.exports = arrayIncludesWith;
 });
 
-var require$$1 = (index$3 && typeof index$3 === 'object' && 'default' in index$3 ? index$3['default'] : index$3);
+var require$$1 = (index$5 && typeof index$5 === 'object' && 'default' in index$5 ? index$5['default'] : index$5);
 
-var index$5 = __commonjs(function (module) {
+var index$4 = __commonjs(function (module) {
 /**
  * lodash 4.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
@@ -376,7 +376,7 @@ function indexOfNaN(array, fromIndex, fromRight) {
 module.exports = arrayIncludes;
 });
 
-var require$$2 = (index$5 && typeof index$5 === 'object' && 'default' in index$5 ? index$5['default'] : index$5);
+var require$$2 = (index$4 && typeof index$4 === 'object' && 'default' in index$4 ? index$4['default'] : index$4);
 
 var index$7 = __commonjs(function (module, exports, global) {
 /**
@@ -1345,7 +1345,9 @@ const HTML = 'text/html';
 const XML = 'text/xml';
 const domParser = new DOMParser();
 
-function parseRaw(markup, contentType = XML) {
+function parseRaw(markup) {
+  let contentType = arguments.length <= 1 || arguments[1] === undefined ? XML : arguments[1];
+
   return domParser.parseFromString(markup, contentType);
 }
 
@@ -1363,7 +1365,9 @@ function xml(uri) {
 
 const CONTAINER_XML = 'META-INF/container.xml';
 
-function containerXml(uri, source = CONTAINER_XML) {
+function containerXml(uri) {
+  let source = arguments.length <= 1 || arguments[1] === undefined ? CONTAINER_XML : arguments[1];
+
   return xml(`${ uri }/${ source }`);
 }
 
@@ -1373,7 +1377,9 @@ function rootXml(uri, source) {
 
 const TOC_HTML = 'toc.xhtml';
 
-function containerHtml(uri, source = TOC_HTML) {
+function containerHtml(uri) {
+  let source = arguments.length <= 1 || arguments[1] === undefined ? TOC_HTML : arguments[1];
+
   return fetch(`${ uri }/OPS/${ source }`).then(res => res.text()).then(body => parseRawHtml(body));
 }
 
@@ -1384,9 +1390,9 @@ function parse(uri) {
     const spine$$ = spine(rootXml, tocItem);
 
     return containerHtml(uri, tocItem.href).then(tocHtml => ({
-      manifest$$,
+      manifest: manifest$$,
       metadata: metadata(rootXml, manifest$$),
-      spine$$,
+      spine: spine$$,
       toc: toc(tocHtml, manifest$$, spine$$)
     }));
   }).catch(err => {
@@ -1699,7 +1705,10 @@ const VERSION = 'version';
 
 // TODO the parsing of the `clockValue` could be deferred
 // up to when its used. We put it in here to comply with Readium's data structure needs.
-function smilData(xml, id, refinement = {}, baseUri) {
+function smilData(xml, id) {
+  let refinement = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  let baseUri = arguments[3];
+
   const smilXml = xml.querySelector(TAG$4);
 
   const ret = {

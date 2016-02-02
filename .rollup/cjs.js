@@ -4,7 +4,7 @@ export default {
   dest: 'dist/cjs.js',
   entry: 'index.js',
   format: 'cjs',
-  moduleName: 'media-overlay',
+  moduleName: 'parse-epub',
   plugins: [
     babel({
       exclude: 'node_modules/**',
@@ -13,7 +13,8 @@ export default {
         "transform-async-to-generator",
         "transform-es2015-destructuring",
         "transform-export-extensions",
-        "transform-object-rest-spread"
+        "transform-object-rest-spread",
+        "transform-es2015-parameters"
       ],
       runtimeHelpers: true
     })

@@ -4,7 +4,7 @@ export default {
   dest: 'dist/next.js',
   entry: 'index.js',
   format: 'es6',
-  moduleName: 'usepages-blocks-basic',
+  moduleName: 'parse-epub',
   plugins: [
     babel({
       exclude: 'node_modules/**',
