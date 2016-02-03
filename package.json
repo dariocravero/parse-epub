@@ -7,8 +7,8 @@
     "build:watch": "babel --watch --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
     "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
     "prepublish": "npm run build",
-    "start": "watchify --extension .es6 --outfile playground/app.js playground/app.es6 & static playground --cache 0 -a 0.0.0.0",
-    "test": "browserify --extension .es6 __tests__/index.es6 | smokestack",
+    "start": "watchify --transform babelify --extension .es6 --outfile playground/app.js playground/app.es6 & static playground --cache 0 -a 0.0.0.0",
+    "test": "browserify --transform babelify --extension .es6 __tests__/index.es6 | smokestack",
     "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -46,10 +46,5 @@
     "lodash": "^3.10.1",
     "path-browserify": "0.0.0",
     "whatwg-fetch": "^0.9.0"
-  },
-  "browserify": {
-    "transform": [
-      "babelify"
-    ]
   }
 }
