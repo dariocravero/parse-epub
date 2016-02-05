@@ -17,7 +17,10 @@ export default function toc(tocHtml, manifest, spine) {
 
   function parse(snippet, id, href, label, parentId) {
     const hrefWithoutHash = href && href.split('#')[0];
-    const manifestId = Object.keys(manifest.byId).find(id =>  manifest.byId[id].href.split('/').pop() === hrefWithoutHash || manifest.byId[id].href === hrefWithoutHash);
+    const manifestId = Object.keys(manifest.byId).find(id => {
+      const { href } = manifest.byId[id];
+      return href === hrefWithoutHash || href.split('/').pop() === hrefWithoutHash;
+    });
 
     // Don't include the TOC reference item in the spine
     if (tocItem.id !== manifestId) {
