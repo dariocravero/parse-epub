@@ -9,15 +9,21 @@ import fetchTocHtml from '../fetch/toc-html';
 import getTocItem from '../extract/get-toc-item';
 
 export default function parse(uri) {
+
+  let contentFolder;
+
   return fetchContainerXml(uri)
     .then(containerXml => extractRootFile(containerXml))
-    .then(rootFile => fetchRootXml(uri, rootFile))
+    .then(rootFile => {
+      contentFolder = rootFile.split('/')[0];
+      return fetchRootXml(uri, rootFile);
+    })
     .then(rootXml => {
       const manifest = extractManifest(rootXml);
       const tocItem = getTocItem(manifest);
       const spine = extractSpine(rootXml, tocItem);
 
-      return fetchTocHtml(uri, tocItem.href)
+      return fetchTocHtml(uri, tocItem.href, contentFolder)
         .then(tocHtml => ({
           manifest,
           metadata: extractMetadata(rootXml, manifest),
