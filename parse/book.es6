@@ -32,12 +32,10 @@ export default function parse(uri) {
         }));
     })
     .catch(err => {
-      let nextErr = err;
-
       if (/Cannot read property 'getAttribute' of null/.test(err.message)) {
-        nextErr = new Error(`We couldn't find a book at ${uri}.`);
+        throw new Error(`We couldn't find a book at ${uri}.`);
+      } else {
+        throw err;
       }
-
-      throw nextErr;
     });
 }
