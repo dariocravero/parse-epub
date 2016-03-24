@@ -1,7 +1,7 @@
 import { parseBook, parseSmil, parseAllSmil } from '../index';
 
-const URI = '/books/xplor-latest';
-const SINGLE_SMIL = `${URI}/OPS/smil/culture_and_belonging/selenasblog.xhtml.smil`;
+const URI = '/books/xplor-g8-smil';
+const SINGLE_SMIL = `${URI}/OPS/smil/collection01/selenasblog.xhtml.smil`;
 
 console.log('parse-epub: parsing book', URI);
 
