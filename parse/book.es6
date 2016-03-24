@@ -23,7 +23,7 @@ export default function parse(uri) {
       const tocItem = getTocItem(manifest);
       const spine = extractSpine(rootXml, tocItem);
 
-      return fetchTocHtml(uri, tocItem.href, contentFolder)
+      return fetchTocHtml(`${uri}/${contentFolder}`, tocItem.href)
         .then(tocHtml => ({
           manifest,
           metadata: extractMetadata(rootXml, manifest),
