@@ -15,7 +15,7 @@ export default function toc(tocHtml, manifest, spine) {
 
   parse(tocHtml.querySelector(TAG), ROOT);
 
-  function parse(snippet, id, href, label, parentId) {
+  function parse(snippet, id, href, label, parentId, level=0) {
     const hrefWithoutHash = href && href.split('#')[0];
     const manifestId = Object.keys(manifest.byId).find(id => manifest.byId[id].href === hrefWithoutHash);
 
@@ -29,7 +29,7 @@ export default function toc(tocHtml, manifest, spine) {
           .map(node => {
             const link = node.querySelector('a');
             const childId = uniqueId();
-            return parse(node, childId, link.getAttribute('href'), link.textContent, id) && childId;
+            return parse(node, childId, link.getAttribute('href'), link.textContent, id, level+1) && childId;
           })
           .filter(id => id);
       }
@@ -48,6 +48,7 @@ export default function toc(tocHtml, manifest, spine) {
         isLeaf,
         href,
         label,
+        level,
         linear: snippet.getAttribute('linear'),
         manifestId,
         parentId
