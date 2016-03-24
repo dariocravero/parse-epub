@@ -77,7 +77,11 @@ function parse(xml, baseUri) {
 
   case PAR:
     ret = attrs(xml);
-    ret.audio = parse(xml.querySelector(AUDIO), baseUri);
+    // handle the fact that audio tags are optional
+    const audioTag = xml.querySelector(AUDIO);
+    if (audioTag) {
+      ret.audio = parse(audioTag, baseUri);
+    }
     ret.isPar = true;
     ret.text = parse(xml.querySelector(TEXT), baseUri);
     break;
