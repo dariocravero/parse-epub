@@ -132,7 +132,8 @@ const NODES = {
     REQUIRED: {},
     OPTIONAL: {
       id: 'id',
-      textref: 'epub:textref'
+      textref: 'epub:textref',
+      type: 'epub:type'
     }
   },
   'seq': {
