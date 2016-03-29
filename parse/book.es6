@@ -8,34 +8,59 @@ import fetchRootXml from '../fetch/root-xml';
 import fetchTocHtml from '../fetch/toc-html';
 import getTocItem from '../extract/get-toc-item';
 
-export default function parse(uri) {
+export default async function parse(uri) {
+  try {
+    const containerXml = await fetchContainerXml(uri);
+    
+    const rootFile = await extractRootFile(containerXml);
+    const root = rootFile.split('/')[0];
+    
+    const rootXml = await fetchRootXml(uri, rootFile);
 
-  let contentFolder;
+    const manifest = extractManifest(rootXml);
+    const tocItem = getTocItem(manifest);
+    const spine = extractSpine(rootXml, tocItem);
 
-  return fetchContainerXml(uri)
-    .then(containerXml => extractRootFile(containerXml))
-    .then(rootFile => {
-      contentFolder = rootFile.split('/')[0];
-      return fetchRootXml(uri, rootFile);
-    })
-    .then(rootXml => {
-      const manifest = extractManifest(rootXml);
-      const tocItem = getTocItem(manifest);
-      const spine = extractSpine(rootXml, tocItem);
+    const tocHtml = await fetchTocHtml(`${uri}/${root}`, tocItem.href);
 
-      return fetchTocHtml(`${uri}/${contentFolder}`, tocItem.href)
-        .then(tocHtml => ({
-          manifest,
-          metadata: extractMetadata(rootXml, manifest),
-          spine,
-          toc: extractToc(tocHtml, manifest, spine)
-        }));
-    })
-    .catch(err => {
-      if (/Cannot read property 'getAttribute' of null/.test(err.message)) {
-        throw new Error(`We couldn't find a book at ${uri}.`);
-      } else {
-        throw err;
-      }
-    });
+    return {
+      manifest,
+      metadata: extractMetadata(rootXml, manifest),
+      root,
+      spine,
+      toc: extractToc(tocHtml, manifest, spine)
+    };
+  } catch(err) {
+    if (/Cannot read property 'getAttribute' of null/.test(err.message)) {
+      throw new Error(`We couldn't find a book at ${uri}.`);
+    } else {
+      throw err;
+    }
+  }
+  // return fetchContainerXml(uri)
+  //   .then(containerXml => extractRootFile(containerXml))
+  //   .then(rootFile => {
+  //     const root = rootFile.split('/')[0];
+
+  //     return fetchRootXml(uri, rootFile).then(rootXml => {
+  //       const manifest = extractManifest(rootXml);
+  //       const tocItem = getTocItem(manifest);
+  //       const spine = extractSpine(rootXml, tocItem);
+
+  //       return fetchTocHtml(`${uri}/${root}`, tocItem.href)
+  //         .then(tocHtml => ({
+  //           manifest,
+  //           metadata: extractMetadata(rootXml, manifest),
+  //           root,
+  //           spine,
+  //           toc: extractToc(tocHtml, manifest, spine)
+  //         }));
+  //     });
+  //   }).catch(err => {
+  //     if (/Cannot read property 'getAttribute' of null/.test(err.message)) {
+  //       throw new Error(`We couldn't find a book at ${uri}.`);
+  //     } else {
+  //       throw err;
+  //     }
+  //   });
 }
