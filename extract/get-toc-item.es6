@@ -1,4 +1,6 @@
+import find from 'array-find';
+
 export default function getTocItem(manifest) {
-  const tocManifestId = manifest.items.find(id => /nav/.test(manifest.byId[id].properties));
+  const tocManifestId = find(manifest.items, id => /nav/.test(manifest.byId[id].properties));
   return manifest.byId[tocManifestId];
 }

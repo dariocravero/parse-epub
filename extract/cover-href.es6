@@ -1,8 +1,10 @@
+import find from 'array-find';
+
 export default function coverHref(manifest) {
   const item =
     manifest.byId['cover-item'] ||
     manifest.byId['cover'] ||
-    manifest.byId[Object.keys(manifest.byId).find(id => /cover-image/.test(manifest.byId[id].properties))];
+    manifest.byId[find(Object.keys(manifest.byId), id => /cover-image/.test(manifest.byId[id].properties))];
 
   if (item) {
     return item.href;

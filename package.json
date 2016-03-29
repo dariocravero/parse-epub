@@ -1,13 +1,13 @@
 {
   "name": "parse-epub",
   "description": "A modern and modular ePub parser",
-  "main": "index.js",
+  "main": "cjs.js",
   "scripts": {
-    "build": "babel --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
-    "build:watch": "babel --watch --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
+    "build": "browserify -t [ rollupify --config rollup.config.js ] index.js > cjs.js",
+    "build:watch": "",
     "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
     "prepublish": "npm run build",
-    "start": "watchify --transform babelify --extension .es6 --outfile playground/app.js playground/app.es6 & static playground --cache 0 -a 0.0.0.0",
+    "start": "watchify -t [ rollupify --config rollup.config.js ] --outfile playground/app.build.js playground/app.js & static playground --cache 0 -a 0.0.0.0",
     "test": "browserify --transform babelify --extension .es6 __tests__/index.es6 | smokestack",
     "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
@@ -28,23 +28,27 @@
   },
   "homepage": "https://github.com/dariocravero/parse-epub#readme",
   "devDependencies": {
-    "babel": "^5.8.23",
-    "babel-eslint": "^4.1.3",
-    "babelify": "^6.3.0",
-    "browserify": "^11.2.0",
-    "core-js": "^1.2.1",
-    "fetch-mock": "^1.5.2",
-    "jsdom": "^6.5.1",
+    "babel": "^6.5.2",
+    "babel-cli": "^6.6.5",
+    "babel-eslint": "^6.0.0",
+    "babel-plugin-transform-export-extensions": "^6.5.0",
+    "babel-plugin-transform-object-rest-spread": "^6.6.5",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
+    "fetch-mock": "^4.3.0",
+    "jsdom": "^8.2.0",
+    "kneden": "^1.0.4",
     "node-static": "^0.7.7",
+    "rollup-plugin-babel": "^2.4.0",
+    "rollupify": "^0.2.0",
     "semantic-release": "^4.3.5",
     "smokestack": "^3.4.1",
     "tape": "^4.2.1",
     "watchify": "^3.6.1"
   },
   "dependencies": {
-    "es6-promise": "^3.0.2",
-    "lodash": "^3.10.1",
-    "path-browserify": "0.0.0",
-    "whatwg-fetch": "^0.9.0"
+    "path-browserify": "0.0.0"
   }
 }

@@ -1,4 +1,7 @@
 {
-  "loose": "all",
-  "stage": 0
+  "plugins": [
+    "kneden",
+    "transform-export-extensions",
+    "transform-object-rest-spread"
+  ]
 }

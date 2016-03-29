@@ -1,3 +1,4 @@
+import find from 'array-find';
 import items from './items';
 import getTocItem from './get-toc-item';
 import uniqueId from 'lodash/utility/uniqueId';
@@ -17,7 +18,7 @@ export default function toc(tocHtml, manifest, spine) {
 
   function parse(snippet, id, href, label, parentId) {
     const hrefWithoutHash = href && href.split('#')[0];
-    const manifestId = Object.keys(manifest.byId).find(id => {
+    const manifestId = find(Object.keys(manifest.byId), id => {
       const { href } = manifest.byId[id];
       return href === hrefWithoutHash || href.split('/').pop() === hrefWithoutHash;
     });

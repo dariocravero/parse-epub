@@ -1,7 +1,7 @@
-import 'core-js/modules/es6.array.find';
 import * as path from 'path-browserify';
 import { manifestItemXml as fetchManifestItemXml } from '../fetch';
 import extractSmilData from './smil-data';
+import find from 'array-find';
 
 const SMIL_MEDIA_TYPE = 'application/smil+xml';
 
@@ -29,7 +29,7 @@ export function parseAll(items, manifest, metadata, uri) {
     manifestItemsXml.forEach((xml, i) => {
       const spineId = items[i];
       const smilId = manifest.byId[spineId].mediaOverlay;
-      const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${smilId}`);
+      const refinement = find(metadata.mediaOverlayDurations, mod => mod.refines === `#${smilId}`);
       const baseUri = path.dirname(manifest.byId[spineId].href);
       byId[smilId] = extractSmilData(xml, smilId, refinement, baseUri);
     });
