@@ -4,12 +4,9 @@
   "main": "cjs.js",
   "scripts": {
     "build": "browserify -t [ rollupify --config rollup.config.js ] index.js > cjs.js",
-    "build:watch": "",
-    "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
     "prepublish": "npm run build",
-    "start": "watchify -t [ rollupify --config rollup.config.js ] --outfile playground/app.build.js playground/app.js & static playground --cache 0 -a 0.0.0.0",
-    "test": "browserify --transform babelify --extension .es6 __tests__/index.es6 | smokestack",
-    "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one",
+    "start": "watchify -t [ rollupify --config rollup.config.js ] --outfile playground/app.cjs.js playground/app.js & static playground --cache 0 -a 0.0.0.0",
+    "test": "browserify -t [ rollupify --config rollup.config.js ] __tests__/index.js | smokestack",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
@@ -28,7 +25,6 @@
   },
   "homepage": "https://github.com/dariocravero/parse-epub#readme",
   "devDependencies": {
-    "babel": "^6.5.2",
     "babel-cli": "^6.6.5",
     "babel-eslint": "^6.0.0",
     "babel-plugin-transform-export-extensions": "^6.5.0",
@@ -49,6 +45,8 @@
     "watchify": "^3.6.1"
   },
   "dependencies": {
+    "array-find": "^1.0.0",
+    "mini-unique-id": "^1.0.1",
     "path-browserify": "0.0.0"
   }
 }

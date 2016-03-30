@@ -1,5 +1,5 @@
 import * as path from 'path-browserify';
-import { manifestItemXml as fetchManifestItemXml } from '../fetch';
+import fetchManifestItemXml from '../fetch/manifest-item-xml';
 import extractSmilData from './smil-data';
 import find from 'array-find';
 

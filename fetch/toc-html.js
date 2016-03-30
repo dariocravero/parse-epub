@@ -1,4 +1,3 @@
-import 'whatwg-fetch';
 import { parseRawHtml } from '../parse-raw';
 
 const TOC_HTML = 'toc.xhtml';

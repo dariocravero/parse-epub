@@ -1,7 +1,7 @@
 import find from 'array-find';
 import items from './items';
 import getTocItem from './get-toc-item';
-import uniqueId from 'lodash/utility/uniqueId';
+import uniqueId from 'mini-unique-id';
 
 const TAG = 'nav[id="toc"]';
 
