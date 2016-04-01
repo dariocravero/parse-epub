@@ -32,10 +32,10 @@ export default function smilData(xml, id, refinement={}, baseUri) {
     ret.duration = parseClockValue(refinement.clockValue);
   }
 
-  if(ret.body.childNodes.length>1) {
-    flattenNodes(ret.body);
-    ret.body.childNodes = nodeTracker;
-  }
+  // if(ret.body.childNodes.length>1) {
+  //   flattenNodes(ret.body);
+  //   ret.body.childNodes = nodeTracker;
+  // }
 
   return ret;
 }
