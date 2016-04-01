@@ -10,9 +10,16 @@ const TAG = 'smil';
 const TEXT = 'text';
 const VERSION = 'version';
 
+let nodeTracker = [];
+
 // TODO the parsing of the `clockValue` could be deferred
 // up to when its used. We put it in here to comply with Readium's data structure needs.
 export default function smilData(xml, id, refinement={}, baseUri) {
+ 
+
+  //reset
+  nodeTracker = [];
+
   const smilXml = xml.querySelector(TAG);
 
   const ret = {
@@ -24,7 +31,24 @@ export default function smilData(xml, id, refinement={}, baseUri) {
   if (refinement.clockValue) {
     ret.duration = parseClockValue(refinement.clockValue);
   }
+
+  if(ret.body.childNodes.length>1) {
+    flattenNodes(ret.body);
+    ret.body.childNodes = nodeTracker;
+  }
+
   return ret;
+}
+
+//flattenNodes
+function flattenNodes(nodes){
+    return nodes.childNodes.map(node => { 
+        if(typeof node.childNodes === 'undefined'){
+          return nodeTracker.push(node);
+        }else{
+         return flattenNodes(node);
+        }
+    });
 }
 
 function getValidChildNodes(xml) {
