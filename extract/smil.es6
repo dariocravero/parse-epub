@@ -15,24 +15,26 @@ export function fetchAll(uri, items, manifest) {
   return Promise.all(
     items.map(spineId => {
       const smilId = manifest.byId[spineId].mediaOverlay;
-      const smilItem = manifest.byId[smilId];
-      return fetchManifestItemXml(uri, smilItem.href);
+      const { href: smilUri } = manifest.byId[smilId];
+
+      return fetchManifestItemXml(uri, smilUri)
+        .then(manifestItemsXml => ({ manifestItemsXml, smilUri }));
     })
   );
 }
 
 export function parseAll(items, manifest, metadata, uri) {
-  return function parseAllThunk(manifestItemsXml) {
+  return function parseAllThunk(smilData) {
     const byId = {};
     let i = 0;
 
-    manifestItemsXml.forEach((xml, i) => {
-      const spineId = items[i];
-      const smilId = manifest.byId[spineId].mediaOverlay;
-      const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${smilId}`);
-      const baseUri = path.dirname(manifest.byId[spineId].href);
-      byId[smilId] = extractSmilData(xml, smilId, refinement, baseUri);
-    });
+    smilData.forEach((smilDetail, i) => {
+        const spineId = items[i];
+        const smilId = manifest.byId[spineId].mediaOverlay;
+        const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${smilId}`);
+        const baseUri = path.dirname(smilDetail.smilUri);
+        byId[smilId] = extractSmilData(smilDetail.manifestItemsXml, smilId, refinement, baseUri);
+    });    
 
     return {
       byId,
@@ -44,6 +46,6 @@ export function parseAll(items, manifest, metadata, uri) {
 export default function smil(uri, manifest, metadata) {
   const items = getMediaOverlayItems(manifest);
   return fetchAll(uri, items, manifest)
-    .then(values => parseAll(items, manifest, metadata, uri)(values))
+    .then(smilData => parseAll(items, manifest, metadata, uri)(smilData))
     .catch(error => console.error(error));
 }

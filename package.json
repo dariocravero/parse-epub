@@ -36,7 +36,6 @@
     "fetch-mock": "^1.5.2",
     "jsdom": "^6.5.1",
     "node-static": "^0.7.7",
-    "semantic-release": "^4.3.5",
     "smokestack": "^3.4.1",
     "tape": "^4.2.1",
     "watchify": "^3.6.1"
