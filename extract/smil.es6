@@ -29,12 +29,12 @@ export function parseAll(items, manifest, metadata, uri) {
     let i = 0;
 
     smilData.forEach((smilDetail, i) => {
-        const spineId = items[i];
-        const smilId = manifest.byId[spineId].mediaOverlay;
-        const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${smilId}`);
-        const baseUri = path.dirname(smilDetail.smilUri);
-        byId[smilId] = extractSmilData(smilDetail.manifestItemsXml, smilId, refinement, baseUri);
-    });    
+      const spineId = items[i];
+      const smilId = manifest.byId[spineId].mediaOverlay;
+      const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${smilId}`);
+      const baseUri = path.dirname(smilDetail.smilUri);
+      byId[smilId] = extractSmilData(smilDetail.manifestItemsXml, smilId, refinement, baseUri);
+    });
 
     return {
       byId,
