@@ -8,12 +8,12 @@ import fetchRootXml from '../fetch/root-xml';
 import fetchTocHtml from '../fetch/toc-html';
 import getTocItem from '../extract/get-toc-item';
 
-export default function parse(uri) {
+export default function parse(uri, manifestMediaTypeWhitelist=false) {
   return fetchContainerXml(uri)
     .then(containerXml => extractRootFile(containerXml))
     .then(rootFile => fetchRootXml(uri, rootFile))
     .then(rootXml => {
-      const manifest = extractManifest(rootXml);
+      const manifest = extractManifest(rootXml, manifestMediaTypeWhitelist);
       const tocItem = getTocItem(manifest);
       const spine = extractSpine(rootXml, tocItem);
 

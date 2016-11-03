@@ -1,6 +1,9 @@
-export default function items(xml, item, attributes) {
-  return Array.prototype.map.call(xml.querySelectorAll(item), item => {
-    let ret = {};
+export default function items(xml, item, attributes, mediaTypeWhitelist) {
+  return Array.prototype.filter.call(xml.querySelectorAll(item), item => (
+    !mediaTypeWhitelist ||
+    mediaTypeWhitelist.indexOf(item.getAttribute(attributes.mediaType)) > -1
+  )).map(item => {
+    const ret = {};
 
     Object.keys(attributes).forEach(key => {
       try {

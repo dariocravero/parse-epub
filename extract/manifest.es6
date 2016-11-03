@@ -11,8 +11,8 @@ const ATTRIBUTES = {
 const ITEM = 'item';
 const TAG = 'manifest';
 
-export default function manifest(rootXml) {
-  return normalise(items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES));
+export default function manifest(rootXml, mediaTypeWhitelist) {
+  return normalise(items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES, mediaTypeWhitelist));
 }
 
 // TODO
