@@ -1,3 +1,4 @@
+import * as path from 'path-browserify';
 import extractManifest from '../extract/manifest';
 import extractMetadata from '../extract/metadata';
 import extractRootFile from '../extract/root-file';
@@ -9,16 +10,22 @@ import fetchTocHtml from '../fetch/toc-html';
 import getTocItem from '../extract/get-toc-item';
 
 export default function parse(uri, manifestMediaTypeWhitelist=false) {
+  let packageDirectory;
+
   return fetchContainerXml(uri)
     .then(containerXml => extractRootFile(containerXml))
-    .then(rootFile => fetchRootXml(uri, rootFile))
+    .then(rootFile => {
+      packageDirectory = path.dirname(rootFile);
+      return fetchRootXml(uri, rootFile);
+    })
     .then(rootXml => {
       const manifest = extractManifest(rootXml, manifestMediaTypeWhitelist);
       const tocItem = getTocItem(manifest);
       const spine = extractSpine(rootXml, tocItem);
 
-      return fetchTocHtml(uri, tocItem.href)
+      return fetchTocHtml(uri, tocItem.href, packageDirectory)
         .then(tocHtml => ({
+          packageDirectory,
           manifest,
           metadata: extractMetadata(rootXml, manifest),
           spine,

@@ -1,15 +1,18 @@
 import { parseBook, parseSmil, parseAllSmil } from '../index';
 
 const URI = '/books/xplor-g8-smil';
-const SINGLE_SMIL = `${URI}/OPS/smil/collection01/selenasblog.xhtml.smil`;
+const PACKAGE_DIRECTORY = 'CONTENT/OPS';
+const SINGLE_SMIL = `${URI}/${PACKAGE_DIRECTORY}/smil/culture_and_belonging/selena_s_blog.xhtml.smil`;
+
 
 console.log('parse-epub: parsing book', URI);
 
 parseBook(URI)
   .then(data => {
     console.log('parse-epub: parsed data', data);
+    const { manifest, metadata, packageDirectory } = data;
 
-    parseAllSmil(URI, data.manifest, data.metadata)
+    parseAllSmil(URI, manifest, metadata, packageDirectory)
       .then(smil => {
         console.log('parse-epub: smil data', smil);
 
@@ -22,6 +25,6 @@ parseBook(URI)
       });
   });
 
-console.log('parse-epub: parsing single smil', SINGLE_SMIL);
 
+console.log('parse-epub: parsing single smil', SINGLE_SMIL);
 parseSmil(SINGLE_SMIL).then(smil => console.log(smil));
