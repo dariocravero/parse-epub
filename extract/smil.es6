@@ -11,13 +11,13 @@ export function getMediaOverlayItems(manifest) {
   return manifest.items.filter(id => manifest.byId[id].mediaOverlay);
 }
 
-export function fetchAll(uri, items, manifest) {
+export function fetchAll(uri, items, manifest, path) {
   return Promise.all(
     items.map(spineId => {
       const smilId = manifest.byId[spineId].mediaOverlay;
       const { href: smilUri } = manifest.byId[smilId];
 
-      return fetchManifestItemXml(uri, smilUri)
+      return fetchManifestItemXml(uri, smilUri, path)
         .then(manifestItemsXml => ({ manifestItemsXml, smilUri }));
     })
   );
@@ -43,9 +43,9 @@ export function parseAll(items, manifest, metadata, uri) {
   }
 }
 
-export default function smil(uri, manifest, metadata) {
+export default function smil(uri, manifest, metadata, path) {
   const items = getMediaOverlayItems(manifest);
-  return fetchAll(uri, items, manifest)
+  return fetchAll(uri, items, manifest, path)
     .then(smilData => parseAll(items, manifest, metadata, uri)(smilData))
     .catch(error => console.error(error));
 }
