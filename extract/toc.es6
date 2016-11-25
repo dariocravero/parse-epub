@@ -3,9 +3,7 @@ import items from './items';
 import getTocItem from './get-toc-item';
 import uniqueId from 'lodash/utility/uniqueId';
 
-//const TAG = 'nav[id="toc"]';
-
-// Spec says we need to select using the epub:type=toc property
+// Spec says we need to select the TOC using the epub:type=toc property
 const TAG = 'nav[epub\\\:type~=toc]';
 export const ROOT = '__root__';
 
@@ -62,7 +60,7 @@ export default function toc(tocHtml, manifest, spine) {
       return false;
     }
   }
-  
+
   return {
     byId,
     byManifestId,

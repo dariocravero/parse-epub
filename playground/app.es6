@@ -1,7 +1,7 @@
 import { parseBook, parseSmil, parseAllSmil } from '../index';
 
 const URI = '/books/xplor-g8-smil';
-const PACKAGE_DIRECTORY = 'CONTENT/OPS';
+const PACKAGE_DIRECTORY = 'OPS';
 const SINGLE_SMIL = `${URI}/${PACKAGE_DIRECTORY}/smil/culture_and_belonging/selena_s_blog.xhtml.smil`;
 
 
