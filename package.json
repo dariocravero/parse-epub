@@ -9,8 +9,7 @@
     "prepublish": "npm run build",
     "start": "watchify --transform babelify --extension .es6 --outfile playground/app.js playground/app.es6 & static playground --cache 0 -a 0.0.0.0",
     "test": "browserify --transform babelify --extension .es6 __tests__/index.es6 | smokestack",
-    "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one"
   },
   "repository": {
     "type": "git",
