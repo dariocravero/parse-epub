@@ -1,4 +1,4 @@
-import * as path from 'path-browserify';
+import { dirname } from 'path-browserify';
 import extractManifest from '../extract/manifest';
 import extractMetadata from '../extract/metadata';
 import extractRootFile from '../extract/root-file';
@@ -15,7 +15,7 @@ export default function parse(uri, manifestMediaTypeWhitelist=false) {
   return fetchContainerXml(uri)
     .then(containerXml => extractRootFile(containerXml))
     .then(rootFile => {
-      packageDirectory = path.dirname(rootFile);
+      packageDirectory = dirname(rootFile);
       return fetchRootXml(uri, rootFile);
     })
     .then(rootXml => {
