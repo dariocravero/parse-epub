@@ -1,4 +1,6 @@
 {
-  "loose": "all",
-  "stage": 0
+  "plugins": [
+    "transform-export-extensions",
+    "transform-object-rest-spread"
+  ]
 }

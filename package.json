@@ -1,14 +1,15 @@
 {
   "name": "parse-epub",
   "description": "A modern and modular ePub parser",
-  "main": "index.js",
+  "main": "cjs.js",
   "scripts": {
-    "build": "babel --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
+    "bundle": "NODE_ENV=production browserify --verbose --debug --transform [ rollupify --config rollup.config.js ] --transform envify --standalone ParseEpub index.js | exorcist dist/parse-epub.js.map > dist/parse-epub.js && uglifyjs --verbose --compress --mangle --screw-ie8 --in-source-map dist/parse-epub.js.map --source-map dist/parse-epub.min.js.map dist/parse-epub.js > dist/parse-epub.min.js",
+    "bundle:rollup": "rollup -c rollup.config.js",
     "build:watch": "babel --watch --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
     "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
-    "prepublish": "npm run build",
-    "start": "watchify --transform babelify --extension .es6 --outfile playground/app.js playground/app.es6 & static playground --cache 0 -a 0.0.0.0",
-    "test": "browserify --transform babelify --extension .es6 __tests__/index.es6 | smokestack",
+    "prepublish": "rm -rf dist && mkdir dist && npm run bundle && NODE_ENV=development npm run bundle:rollup",
+    "start": "watchify --transform babelify --outfile playground/app.js playground/app.js & static playground --cache 0 -a 0.0.0.0",
+    "test": "browserify -t [ babelify --presets [ es2015 react ] ] __tests__/index.js | smokestack",
     "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one"
   },
   "repository": {
@@ -27,20 +28,32 @@
   },
   "homepage": "https://github.com/dariocravero/parse-epub#readme",
   "devDependencies": {
-    "babel": "^5.8.23",
-    "babel-eslint": "^4.1.3",
-    "babelify": "^6.3.0",
-    "browserify": "^11.2.0",
+    "babel-cli": "^6.3.17",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.7.4",
+    "babel-plugin-transform-export-extensions": "^6.4.0",
+    "babel-plugin-transform-object-rest-spread": "^6.3.13",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "babel-preset-react-app-rollup": "^0.0.4",
+    "babelify": "^7.2.0",
+    "browserify": "^13.0.0",
     "core-js": "^1.2.1",
+    "envify": "^4.0.0",
+    "exorcist": "^0.4.0",
     "fetch-mock": "^1.5.2",
     "jsdom": "^6.5.1",
     "node-static": "^0.7.7",
+    "rollup": "^0.41.4",
+    "rollup-plugin-babel": "^2.3.9",
+    "rollup-watch": "^2.5.0",
+    "rollupify": "^0.3.4",
     "smokestack": "^3.4.1",
     "tape": "^4.2.1",
+    "uglify-js": "^2.7.5",
     "watchify": "^3.6.1"
   },
   "dependencies": {
-    "lodash": "^3.10.1",
+    "lodash.uniqueid": "^4.0.1",
     "path-browserify": "0.0.0"
   },
   "version": "3.4.1"

@@ -1,6 +1,3 @@
-import 'core-js/modules/es6.promise';
-import 'whatwg-fetch';
-
 import fetchMock from 'fetch-mock/client';
 import manifest from './fixtures/manifest';
 import metadata  from './fixtures/metadata';

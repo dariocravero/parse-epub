@@ -1,6 +1,6 @@
 import 'core-js/modules/es6.array.find';
 import * as path from 'path-browserify';
-import { manifestItemXml as fetchManifestItemXml } from '../fetch';
+import { manifestItemXml as fetchManifestItemXml } from '../fetch/index.js';
 import extractSmilData from './smil-data';
 
 const SMIL_MEDIA_TYPE = 'application/smil+xml';
