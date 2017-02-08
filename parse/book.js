@@ -1,4 +1,4 @@
-import { dirname } from 'path-browserify';
+import { dirname } from '../path-helpers.js';
 import extractManifest from '../extract/manifest';
 import extractMetadata from '../extract/metadata';
 import extractRootFile from '../extract/root-file';

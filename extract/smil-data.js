@@ -1,6 +1,6 @@
 import canIgnoreNode  from './ignore-node';
 import parseClockValue from './parse-clock-value';
-import * as path from 'path-browserify';
+import { isAbsolute, resolve } from '../path-helpers.js';
 
 const AUDIO = 'audio';
 const BODY = 'body';
@@ -59,7 +59,7 @@ function attrs(itemXml) {
 }
 
 function resolvePath(baseUri, relativePath) {
-  return path.resolve(baseUri, relativePath);
+  return resolve(baseUri, relativePath);
 }
 
 function parse(xml, baseUri) {
@@ -68,7 +68,7 @@ function parse(xml, baseUri) {
   switch(xml.nodeName) {
   case AUDIO:
     ret = attrs(xml);
-    if(ret.src && !path.isAbsolute(ret.src)) {
+    if(ret.src && !isAbsolute(ret.src)) {
       ret.src = resolvePath(baseUri, ret.src);
     }
     ret.clipBegin = ret.clipBegin && parseClockValue(ret.clipBegin);
@@ -95,7 +95,7 @@ function parse(xml, baseUri) {
 
   case TEXT:
     ret = attrs(xml);
-    if(ret.src && !path.isAbsolute(ret.src)) {
+    if(ret.src && !isAbsolute(ret.src)) {
       ret.src = resolvePath(baseUri, ret.src);
     }
     const [ srcFile, srcFragmentId ] = ret.src.split('#');

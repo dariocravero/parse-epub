@@ -1,13 +1,147 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.ParseEpub = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (process){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var path = require('path-browserify');
-var uniqueId = _interopDefault(require('lodash.uniqueid'));
-require('core-js/modules/es6.array.find');
+var uniqueId = _interopDefault(require('mini-unique-id'));
+
+// These functions are lifted directly from https://www.npmjs.com/package/path-browserify
+// I have only included the ones that we are currently using - if we need any more in future: go get 'em!
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function splitPath(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+function filter(xs, f) {
+  if (xs.filter) return xs.filter(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    if (f(xs[i], i, xs)) res.push(xs[i]);
+  }
+  return res;
+}
+
+var substr = 'ab'.substr(-1) === 'b' ? function (str, start, len) {
+  return str.substr(start, len);
+} : function (str, start, len) {
+  if (start < 0) start = str.length + start;
+  return str.substr(start, len);
+};
+
+function resolve() {
+  var resolvedPath = '';
+  var resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = i >= 0 ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function (p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return (resolvedAbsolute ? '/' : '') + resolvedPath || '.';
+}
+
+function normalize(path) {
+  var absolute = isAbsolute(path);
+  var trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function (p) {
+    return !!p;
+  }), !absolute).join('/');
+
+  if (!path && !absolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (absolute ? '/' : '') + path;
+}
+
+function isAbsolute(path) {
+  return path.charAt(0) === '/';
+}
+
+function join() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return normalize(filter(paths, function (p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+}
+
+function dirname(path) {
+  var result = splitPath(path);
+  var root = result[0];
+  var dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+}
+
+function extname(path) {
+  return splitPath(path)[3];
+}
 
 function items(xml, item, attributes, mediaTypeWhitelist) {
   return Array.prototype.filter.call(xml.querySelectorAll(item), function (item) {
@@ -163,7 +297,7 @@ var FULL_PATH = 'full-path';
 
 function rootFile(containerXml) {
   var packageDocumentPath = containerXml.querySelector(ROOT_FILE).getAttribute(FULL_PATH);
-  if (path.extname(packageDocumentPath) === '.opf') {
+  if (extname(packageDocumentPath) === '.opf') {
     return packageDocumentPath;
   } else {
     throw new Error('no .opf file could be found in META-INF/container.xml');
@@ -213,13 +347,13 @@ function toc(tocHtml, manifest, spine) {
   var items$$1 = [];
 
   var tocItem = getTocItem(manifest);
-  var tocItemPath = path.dirname(tocItem.href);
+  var tocItemPath = dirname(tocItem.href);
   parse(tocHtml.querySelector(TAG$3), ROOT);
 
   function parse(snippet, id, href, label, parentId) {
     var level = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
 
-    var hrefWithoutHash = href && path.join(tocItemPath, href.split('#')[0]);
+    var hrefWithoutHash = href && join(tocItemPath, href.split('#')[0]);
     var manifestId = Object.keys(manifest.byId).find(function (id) {
       return manifest.byId[id].href === hrefWithoutHash;
     });
@@ -323,9 +457,9 @@ var OPF_DIRECTORY = 'OPS';
 
 function containerHtml(uri) {
   var source = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : TOC_HTML;
-  var path$$1 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : OPF_DIRECTORY;
+  var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : OPF_DIRECTORY;
 
-  return fetch(uri + '/' + path$$1 + '/' + source, { credentials: 'include' }).then(function (res) {
+  return fetch(uri + '/' + path + '/' + source, { credentials: 'include' }).then(function (res) {
     return res.text();
   }).then(function (body) {
     return parseRawHtml(body);
@@ -340,7 +474,7 @@ function parse(uri) {
   return containerXml(uri).then(function (containerXml$$1) {
     return rootFile(containerXml$$1);
   }).then(function (rootFile$$1) {
-    packageDirectory = path.dirname(rootFile$$1);
+    packageDirectory = dirname(rootFile$$1);
     return rootXml(uri, rootFile$$1);
   }).then(function (rootXml$$1) {
     var manifest$$1 = manifest(rootXml$$1, manifestMediaTypeWhitelist);
@@ -367,8 +501,8 @@ function parse(uri) {
   });
 }
 
-function manifestItemXml(uri, source, path$$1) {
-  return xml(uri + '/' + path$$1 + '/' + source);
+function manifestItemXml(uri, source, path) {
+  return xml(uri + '/' + path + '/' + source);
 }
 
 // this function will return DOM parsed nodes that are not comments or text nodes containing whitespace
@@ -527,7 +661,7 @@ function attrs(itemXml) {
 }
 
 function resolvePath(baseUri, relativePath) {
-  return path.resolve(baseUri, relativePath);
+  return resolve(baseUri, relativePath);
 }
 
 function parse$1(xml, baseUri) {
@@ -536,7 +670,7 @@ function parse$1(xml, baseUri) {
   switch (xml.nodeName) {
     case AUDIO:
       ret = attrs(xml);
-      if (ret.src && !path.isAbsolute(ret.src)) {
+      if (ret.src && !isAbsolute(ret.src)) {
         ret.src = resolvePath(baseUri, ret.src);
       }
       ret.clipBegin = ret.clipBegin && parseClockValue(ret.clipBegin);
@@ -565,7 +699,7 @@ function parse$1(xml, baseUri) {
 
     case TEXT:
       ret = attrs(xml);
-      if (ret.src && !path.isAbsolute(ret.src)) {
+      if (ret.src && !isAbsolute(ret.src)) {
         ret.src = resolvePath(baseUri, ret.src);
       }
 
@@ -639,13 +773,13 @@ function getMediaOverlayItems(manifest) {
   });
 }
 
-function fetchAll(uri, items, manifest, path$$1) {
+function fetchAll(uri, items, manifest, path) {
   return Promise.all(items.map(function (spineId) {
     var smilId = manifest.byId[spineId].mediaOverlay;
     var smilUri = manifest.byId[smilId].href;
 
 
-    return manifestItemXml(uri, smilUri, path$$1).then(function (manifestItemsXml) {
+    return manifestItemXml(uri, smilUri, path).then(function (manifestItemsXml) {
       return { manifestItemsXml: manifestItemsXml, smilUri: smilUri };
     });
   }));
@@ -662,7 +796,7 @@ function parseAll(items, manifest, metadata, uri) {
       var refinement = metadata.mediaOverlayDurations.find(function (mod) {
         return mod.refines === '#' + smilId;
       });
-      var baseUri = path.dirname(smilDetail.smilUri);
+      var baseUri = dirname(smilDetail.smilUri);
       byId[smilId] = smilData(smilDetail.manifestItemsXml, smilId, refinement, baseUri);
     });
 
@@ -673,9 +807,9 @@ function parseAll(items, manifest, metadata, uri) {
   };
 }
 
-function smil(uri, manifest, metadata, path$$1) {
+function smil(uri, manifest, metadata, path) {
   var items = getMediaOverlayItems(manifest);
-  return fetchAll(uri, items, manifest, path$$1).then(function (smilData$$1) {
+  return fetchAll(uri, items, manifest, path).then(function (smilData$$1) {
     return parseAll(items, manifest, metadata, uri)(smilData$$1);
   }).catch(function (error) {
     return console.error(error);
@@ -688,7 +822,7 @@ function parseSmil(uri, manifest, metadata, packageDirectory) {
 
 function parseSingleSmil(src, id, refinement, baseUri) {
     return xml(src).then(function (xml$$1) {
-        return smilData(xml$$1, id, refinement, path.dirname(src));
+        return smilData(xml$$1, id, refinement, dirname(src));
     });
 }
 
@@ -703,705 +837,19 @@ exports.parseAllSmil = parseSmil;
 exports.parseSingleSmil = parseSingleSmil;
 exports.parseSmil = index;
 
-},{"core-js/modules/es6.array.find":27,"lodash.uniqueid":28,"path-browserify":29}],2:[function(require,module,exports){
-module.exports = function(it){
-  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
-  return it;
-};
-},{}],3:[function(require,module,exports){
-// 22.1.3.31 Array.prototype[@@unscopables]
-var UNSCOPABLES = require('./$.wks')('unscopables')
-  , ArrayProto  = Array.prototype;
-if(ArrayProto[UNSCOPABLES] == undefined)require('./$.hide')(ArrayProto, UNSCOPABLES, {});
-module.exports = function(key){
-  ArrayProto[UNSCOPABLES][key] = true;
-};
-},{"./$.hide":14,"./$.wks":26}],4:[function(require,module,exports){
-// 0 -> Array#forEach
-// 1 -> Array#map
-// 2 -> Array#filter
-// 3 -> Array#some
-// 4 -> Array#every
-// 5 -> Array#find
-// 6 -> Array#findIndex
-var ctx      = require('./$.ctx')
-  , IObject  = require('./$.iobject')
-  , toObject = require('./$.to-object')
-  , toLength = require('./$.to-length')
-  , asc      = require('./$.array-species-create');
-module.exports = function(TYPE){
-  var IS_MAP        = TYPE == 1
-    , IS_FILTER     = TYPE == 2
-    , IS_SOME       = TYPE == 3
-    , IS_EVERY      = TYPE == 4
-    , IS_FIND_INDEX = TYPE == 6
-    , NO_HOLES      = TYPE == 5 || IS_FIND_INDEX;
-  return function($this, callbackfn, that){
-    var O      = toObject($this)
-      , self   = IObject(O)
-      , f      = ctx(callbackfn, that, 3)
-      , length = toLength(self.length)
-      , index  = 0
-      , result = IS_MAP ? asc($this, length) : IS_FILTER ? asc($this, 0) : undefined
-      , val, res;
-    for(;length > index; index++)if(NO_HOLES || index in self){
-      val = self[index];
-      res = f(val, index, O);
-      if(TYPE){
-        if(IS_MAP)result[index] = res;            // map
-        else if(res)switch(TYPE){
-          case 3: return true;                    // some
-          case 5: return val;                     // find
-          case 6: return index;                   // findIndex
-          case 2: result.push(val);               // filter
-        } else if(IS_EVERY)return false;          // every
-      }
-    }
-    return IS_FIND_INDEX ? -1 : IS_SOME || IS_EVERY ? IS_EVERY : result;
-  };
-};
-},{"./$.array-species-create":5,"./$.ctx":8,"./$.iobject":15,"./$.to-length":23,"./$.to-object":24}],5:[function(require,module,exports){
-// 9.4.2.3 ArraySpeciesCreate(originalArray, length)
-var isObject = require('./$.is-object')
-  , isArray  = require('./$.is-array')
-  , SPECIES  = require('./$.wks')('species');
-module.exports = function(original, length){
-  var C;
-  if(isArray(original)){
-    C = original.constructor;
-    // cross-realm fallback
-    if(typeof C == 'function' && (C === Array || isArray(C.prototype)))C = undefined;
-    if(isObject(C)){
-      C = C[SPECIES];
-      if(C === null)C = undefined;
-    }
-  } return new (C === undefined ? Array : C)(length);
-};
-},{"./$.is-array":16,"./$.is-object":17,"./$.wks":26}],6:[function(require,module,exports){
-var toString = {}.toString;
-
-module.exports = function(it){
-  return toString.call(it).slice(8, -1);
-};
-},{}],7:[function(require,module,exports){
-var core = module.exports = {version: '1.2.6'};
-if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
-},{}],8:[function(require,module,exports){
-// optional / simple context binding
-var aFunction = require('./$.a-function');
-module.exports = function(fn, that, length){
-  aFunction(fn);
-  if(that === undefined)return fn;
-  switch(length){
-    case 1: return function(a){
-      return fn.call(that, a);
-    };
-    case 2: return function(a, b){
-      return fn.call(that, a, b);
-    };
-    case 3: return function(a, b, c){
-      return fn.call(that, a, b, c);
-    };
-  }
-  return function(/* ...args */){
-    return fn.apply(that, arguments);
-  };
-};
-},{"./$.a-function":2}],9:[function(require,module,exports){
-// 7.2.1 RequireObjectCoercible(argument)
-module.exports = function(it){
-  if(it == undefined)throw TypeError("Can't call method on  " + it);
-  return it;
-};
-},{}],10:[function(require,module,exports){
-// Thank's IE8 for his funny defineProperty
-module.exports = !require('./$.fails')(function(){
-  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
-});
-},{"./$.fails":12}],11:[function(require,module,exports){
-var global    = require('./$.global')
-  , core      = require('./$.core')
-  , hide      = require('./$.hide')
-  , redefine  = require('./$.redefine')
-  , ctx       = require('./$.ctx')
-  , PROTOTYPE = 'prototype';
-
-var $export = function(type, name, source){
-  var IS_FORCED = type & $export.F
-    , IS_GLOBAL = type & $export.G
-    , IS_STATIC = type & $export.S
-    , IS_PROTO  = type & $export.P
-    , IS_BIND   = type & $export.B
-    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] || (global[name] = {}) : (global[name] || {})[PROTOTYPE]
-    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
-    , expProto  = exports[PROTOTYPE] || (exports[PROTOTYPE] = {})
-    , key, own, out, exp;
-  if(IS_GLOBAL)source = name;
-  for(key in source){
-    // contains in native
-    own = !IS_FORCED && target && key in target;
-    // export native or passed
-    out = (own ? target : source)[key];
-    // bind timers to global for call from export context
-    exp = IS_BIND && own ? ctx(out, global) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
-    // extend global
-    if(target && !own)redefine(target, key, out);
-    // export
-    if(exports[key] != out)hide(exports, key, exp);
-    if(IS_PROTO && expProto[key] != out)expProto[key] = out;
-  }
-};
-global.core = core;
-// type bitmap
-$export.F = 1;  // forced
-$export.G = 2;  // global
-$export.S = 4;  // static
-$export.P = 8;  // proto
-$export.B = 16; // bind
-$export.W = 32; // wrap
-module.exports = $export;
-},{"./$.core":7,"./$.ctx":8,"./$.global":13,"./$.hide":14,"./$.redefine":20}],12:[function(require,module,exports){
-module.exports = function(exec){
-  try {
-    return !!exec();
-  } catch(e){
-    return true;
-  }
-};
-},{}],13:[function(require,module,exports){
-// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
-var global = module.exports = typeof window != 'undefined' && window.Math == Math
-  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
-if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
-},{}],14:[function(require,module,exports){
-var $          = require('./$')
-  , createDesc = require('./$.property-desc');
-module.exports = require('./$.descriptors') ? function(object, key, value){
-  return $.setDesc(object, key, createDesc(1, value));
-} : function(object, key, value){
-  object[key] = value;
-  return object;
-};
-},{"./$":18,"./$.descriptors":10,"./$.property-desc":19}],15:[function(require,module,exports){
-// fallback for non-array-like ES3 and non-enumerable old V8 strings
-var cof = require('./$.cof');
-module.exports = Object('z').propertyIsEnumerable(0) ? Object : function(it){
-  return cof(it) == 'String' ? it.split('') : Object(it);
-};
-},{"./$.cof":6}],16:[function(require,module,exports){
-// 7.2.2 IsArray(argument)
-var cof = require('./$.cof');
-module.exports = Array.isArray || function(arg){
-  return cof(arg) == 'Array';
-};
-},{"./$.cof":6}],17:[function(require,module,exports){
-module.exports = function(it){
-  return typeof it === 'object' ? it !== null : typeof it === 'function';
-};
-},{}],18:[function(require,module,exports){
-var $Object = Object;
-module.exports = {
-  create:     $Object.create,
-  getProto:   $Object.getPrototypeOf,
-  isEnum:     {}.propertyIsEnumerable,
-  getDesc:    $Object.getOwnPropertyDescriptor,
-  setDesc:    $Object.defineProperty,
-  setDescs:   $Object.defineProperties,
-  getKeys:    $Object.keys,
-  getNames:   $Object.getOwnPropertyNames,
-  getSymbols: $Object.getOwnPropertySymbols,
-  each:       [].forEach
-};
-},{}],19:[function(require,module,exports){
-module.exports = function(bitmap, value){
-  return {
-    enumerable  : !(bitmap & 1),
-    configurable: !(bitmap & 2),
-    writable    : !(bitmap & 4),
-    value       : value
-  };
-};
-},{}],20:[function(require,module,exports){
-// add fake Function#toString
-// for correct work wrapped methods / constructors with methods like LoDash isNative
-var global    = require('./$.global')
-  , hide      = require('./$.hide')
-  , SRC       = require('./$.uid')('src')
-  , TO_STRING = 'toString'
-  , $toString = Function[TO_STRING]
-  , TPL       = ('' + $toString).split(TO_STRING);
-
-require('./$.core').inspectSource = function(it){
-  return $toString.call(it);
-};
-
-(module.exports = function(O, key, val, safe){
-  if(typeof val == 'function'){
-    val.hasOwnProperty(SRC) || hide(val, SRC, O[key] ? '' + O[key] : TPL.join(String(key)));
-    val.hasOwnProperty('name') || hide(val, 'name', key);
-  }
-  if(O === global){
-    O[key] = val;
-  } else {
-    if(!safe)delete O[key];
-    hide(O, key, val);
-  }
-})(Function.prototype, TO_STRING, function toString(){
-  return typeof this == 'function' && this[SRC] || $toString.call(this);
-});
-},{"./$.core":7,"./$.global":13,"./$.hide":14,"./$.uid":25}],21:[function(require,module,exports){
-var global = require('./$.global')
-  , SHARED = '__core-js_shared__'
-  , store  = global[SHARED] || (global[SHARED] = {});
-module.exports = function(key){
-  return store[key] || (store[key] = {});
-};
-},{"./$.global":13}],22:[function(require,module,exports){
-// 7.1.4 ToInteger
-var ceil  = Math.ceil
-  , floor = Math.floor;
-module.exports = function(it){
-  return isNaN(it = +it) ? 0 : (it > 0 ? floor : ceil)(it);
-};
-},{}],23:[function(require,module,exports){
-// 7.1.15 ToLength
-var toInteger = require('./$.to-integer')
-  , min       = Math.min;
-module.exports = function(it){
-  return it > 0 ? min(toInteger(it), 0x1fffffffffffff) : 0; // pow(2, 53) - 1 == 9007199254740991
-};
-},{"./$.to-integer":22}],24:[function(require,module,exports){
-// 7.1.13 ToObject(argument)
-var defined = require('./$.defined');
-module.exports = function(it){
-  return Object(defined(it));
-};
-},{"./$.defined":9}],25:[function(require,module,exports){
-var id = 0
-  , px = Math.random();
-module.exports = function(key){
-  return 'Symbol('.concat(key === undefined ? '' : key, ')_', (++id + px).toString(36));
-};
-},{}],26:[function(require,module,exports){
-var store  = require('./$.shared')('wks')
-  , uid    = require('./$.uid')
-  , Symbol = require('./$.global').Symbol;
-module.exports = function(name){
-  return store[name] || (store[name] =
-    Symbol && Symbol[name] || (Symbol || uid)('Symbol.' + name));
-};
-},{"./$.global":13,"./$.shared":21,"./$.uid":25}],27:[function(require,module,exports){
-'use strict';
-// 22.1.3.8 Array.prototype.find(predicate, thisArg = undefined)
-var $export = require('./$.export')
-  , $find   = require('./$.array-methods')(5)
-  , KEY     = 'find'
-  , forced  = true;
-// Shouldn't skip holes
-if(KEY in [])Array(1)[KEY](function(){ forced = false; });
-$export($export.P + $export.F * forced, 'Array', {
-  find: function find(callbackfn/*, that = undefined */){
-    return $find(this, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
-  }
-});
-require('./$.add-to-unscopables')(KEY);
-},{"./$.add-to-unscopables":3,"./$.array-methods":4,"./$.export":11}],28:[function(require,module,exports){
-(function (global){
-/**
- * lodash (Custom Build) <https://lodash.com/>
- * Build: `lodash modularize exports="npm" -o ./`
- * Copyright jQuery Foundation and other contributors <https://jquery.org/>
- * Released under MIT license <https://lodash.com/license>
- * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
- * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
- */
-
-/** Used as references for various `Number` constants. */
-var INFINITY = 1 / 0;
-
-/** `Object#toString` result references. */
-var symbolTag = '[object Symbol]';
-
-/** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-
-/** Detect free variable `self`. */
-var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-
-/** Used as a reference to the global object. */
-var root = freeGlobal || freeSelf || Function('return this')();
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to generate unique IDs. */
-var idCounter = 0;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
- * of values.
- */
-var objectToString = objectProto.toString;
-
-/** Built-in value references. */
-var Symbol = root.Symbol;
-
-/** Used to convert symbols to primitives and strings. */
-var symbolProto = Symbol ? Symbol.prototype : undefined,
-    symbolToString = symbolProto ? symbolProto.toString : undefined;
-
-/**
- * The base implementation of `_.toString` which doesn't convert nullish
- * values to empty strings.
- *
- * @private
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- */
-function baseToString(value) {
-  // Exit early for strings to avoid a performance hit in some environments.
-  if (typeof value == 'string') {
-    return value;
-  }
-  if (isSymbol(value)) {
-    return symbolToString ? symbolToString.call(value) : '';
-  }
-  var result = (value + '');
-  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
-}
-
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */
-function isObjectLike(value) {
-  return !!value && typeof value == 'object';
-}
-
-/**
- * Checks if `value` is classified as a `Symbol` primitive or object.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
- * @example
- *
- * _.isSymbol(Symbol.iterator);
- * // => true
- *
- * _.isSymbol('abc');
- * // => false
- */
-function isSymbol(value) {
-  return typeof value == 'symbol' ||
-    (isObjectLike(value) && objectToString.call(value) == symbolTag);
-}
-
-/**
- * Converts `value` to a string. An empty string is returned for `null`
- * and `undefined` values. The sign of `-0` is preserved.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- * @example
- *
- * _.toString(null);
- * // => ''
- *
- * _.toString(-0);
- * // => '-0'
- *
- * _.toString([1, 2, 3]);
- * // => '1,2,3'
- */
-function toString(value) {
-  return value == null ? '' : baseToString(value);
-}
-
-/**
- * Generates a unique ID. If `prefix` is given, the ID is appended to it.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Util
- * @param {string} [prefix=''] The value to prefix the ID with.
- * @returns {string} Returns the unique ID.
- * @example
- *
- * _.uniqueId('contact_');
- * // => 'contact_104'
- *
- * _.uniqueId();
- * // => '105'
- */
-function uniqueId(prefix) {
-  var id = ++idCounter;
-  return toString(prefix) + id;
-}
-
-module.exports = uniqueId;
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{}],29:[function(require,module,exports){
-(function (process){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// resolves . and .. elements in a path array with directory names there
-// must be no slashes, empty elements, or device names (c:\) in the array
-// (so also no leading and trailing slashes - it does not distinguish
-// relative and absolute paths)
-function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length - 1; i >= 0; i--) {
-    var last = parts[i];
-    if (last === '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
-
-  return parts;
-}
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
-var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
-  return splitPathRe.exec(filename).slice(1);
-};
-
-// path.resolve([from ...], to)
-// posix version
-exports.resolve = function() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
-
-  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : process.cwd();
-
-    // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
-    } else if (!path) {
-      continue;
-    }
-
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
-  }
-
-  // At this point the path should be resolved to a full absolute path, but
-  // handle relative paths to be safe (might happen when process.cwd() fails)
-
-  // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
-
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-};
-
-// path.normalize(path)
-// posix version
-exports.normalize = function(path) {
-  var isAbsolute = exports.isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
-
-  // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isAbsolute).join('/');
-
-  if (!path && !isAbsolute) {
-    path = '.';
-  }
-  if (path && trailingSlash) {
-    path += '/';
-  }
-
-  return (isAbsolute ? '/' : '') + path;
-};
-
-// posix version
-exports.isAbsolute = function(path) {
-  return path.charAt(0) === '/';
-};
-
-// posix version
-exports.join = function() {
-  var paths = Array.prototype.slice.call(arguments, 0);
-  return exports.normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
-};
-
-
-// path.relative(from, to)
-// posix version
-exports.relative = function(from, to) {
-  from = exports.resolve(from).substr(1);
-  to = exports.resolve(to).substr(1);
-
-  function trim(arr) {
-    var start = 0;
-    for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
-    }
-
-    var end = arr.length - 1;
-    for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
-    }
-
-    if (start > end) return [];
-    return arr.slice(start, end - start + 1);
-  }
-
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
-
-  var length = Math.min(fromParts.length, toParts.length);
-  var samePartsLength = length;
-  for (var i = 0; i < length; i++) {
-    if (fromParts[i] !== toParts[i]) {
-      samePartsLength = i;
-      break;
-    }
-  }
-
-  var outputParts = [];
-  for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
-  }
-
-  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-  return outputParts.join('/');
-};
-
-exports.sep = '/';
-exports.delimiter = ':';
-
-exports.dirname = function(path) {
-  var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
-
-  if (!root && !dir) {
-    // No dirname whatsoever
-    return '.';
-  }
-
-  if (dir) {
-    // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1);
-  }
-
-  return root + dir;
-};
-
-
-exports.basename = function(path, ext) {
-  var f = splitPath(path)[2];
-  // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length);
-  }
-  return f;
-};
-
-
-exports.extname = function(path) {
-  return splitPath(path)[3];
-};
-
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
-}
-
-// String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b'
-    ? function (str, start, len) { return str.substr(start, len) }
-    : function (str, start, len) {
-        if (start < 0) start = str.length + start;
-        return str.substr(start, len);
-    }
-;
-
 }).call(this,require('_process'))
 
-},{"_process":30}],30:[function(require,module,exports){
+},{"_process":3,"mini-unique-id":2}],2:[function(require,module,exports){
+'use strict';
+
+var id = 1;
+
+function index () {
+  return "" + id++;
+}
+
+module.exports = index;
+},{}],3:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

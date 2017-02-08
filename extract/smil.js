@@ -1,5 +1,4 @@
-import 'core-js/modules/es6.array.find';
-import * as path from 'path-browserify';
+import { dirname } from '../path-helpers.js';
 import { manifestItemXml as fetchManifestItemXml } from '../fetch/index.js';
 import extractSmilData from './smil-data';
 
@@ -32,7 +31,7 @@ export function parseAll(items, manifest, metadata, uri) {
       const spineId = items[i];
       const smilId = manifest.byId[spineId].mediaOverlay;
       const refinement = metadata.mediaOverlayDurations.find(mod => mod.refines === `#${smilId}`);
-      const baseUri = path.dirname(smilDetail.smilUri);
+      const baseUri = dirname(smilDetail.smilUri);
       byId[smilId] = extractSmilData(smilDetail.manifestItemsXml, smilId, refinement, baseUri);
     });
 

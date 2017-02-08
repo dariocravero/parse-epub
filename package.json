@@ -9,7 +9,7 @@
     "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
     "prepublish": "rm -rf dist && mkdir dist && npm run bundle && NODE_ENV=development npm run bundle:rollup",
     "start": "watchify --transform babelify --outfile playground/app.js playground/app.js & static playground --cache 0 -a 0.0.0.0",
-    "test": "browserify -t [ babelify --presets [ es2015 react ] ] __tests__/index.js | smokestack",
+    "test": "jest __tests__/*-test.js",
     "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one"
   },
   "repository": {
@@ -29,6 +29,7 @@
   "homepage": "https://github.com/dariocravero/parse-epub#readme",
   "devDependencies": {
     "babel-cli": "^6.3.17",
+    "babel-jest": "^18.0.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.7.4",
     "babel-plugin-transform-export-extensions": "^6.4.0",
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
@@ -41,6 +42,7 @@
     "envify": "^4.0.0",
     "exorcist": "^0.4.0",
     "fetch-mock": "^1.5.2",
+    "jest": "^18.1.0",
     "jsdom": "^6.5.1",
     "node-static": "^0.7.7",
     "rollup": "^0.41.4",
@@ -53,8 +55,7 @@
     "watchify": "^3.6.1"
   },
   "dependencies": {
-    "lodash.uniqueid": "^4.0.1",
-    "path-browserify": "0.0.0"
+    "mini-unique-id": "^1.0.1"
   },
   "version": "3.4.1"
 }

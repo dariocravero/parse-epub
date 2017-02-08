@@ -4,9 +4,142 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var path = require('path-browserify');
-var uniqueId = _interopDefault(require('lodash.uniqueid'));
-require('core-js/modules/es6.array.find');
+var uniqueId = _interopDefault(require('mini-unique-id'));
+
+// These functions are lifted directly from https://www.npmjs.com/package/path-browserify
+// I have only included the ones that we are currently using - if we need any more in future: go get 'em!
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function splitPath(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+function filter(xs, f) {
+  if (xs.filter) return xs.filter(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    if (f(xs[i], i, xs)) res.push(xs[i]);
+  }
+  return res;
+}
+
+var substr = 'ab'.substr(-1) === 'b' ? function (str, start, len) {
+  return str.substr(start, len);
+} : function (str, start, len) {
+  if (start < 0) start = str.length + start;
+  return str.substr(start, len);
+};
+
+function resolve() {
+  var resolvedPath = '';
+  var resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = i >= 0 ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function (p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return (resolvedAbsolute ? '/' : '') + resolvedPath || '.';
+}
+
+function normalize(path) {
+  var absolute = isAbsolute(path);
+  var trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function (p) {
+    return !!p;
+  }), !absolute).join('/');
+
+  if (!path && !absolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (absolute ? '/' : '') + path;
+}
+
+function isAbsolute(path) {
+  return path.charAt(0) === '/';
+}
+
+function join() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return normalize(filter(paths, function (p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+}
+
+function dirname(path) {
+  var result = splitPath(path);
+  var root = result[0];
+  var dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+}
+
+function extname(path) {
+  return splitPath(path)[3];
+}
 
 function items(xml, item, attributes, mediaTypeWhitelist) {
   return Array.prototype.filter.call(xml.querySelectorAll(item), function (item) {
@@ -162,7 +295,7 @@ var FULL_PATH = 'full-path';
 
 function rootFile(containerXml) {
   var packageDocumentPath = containerXml.querySelector(ROOT_FILE).getAttribute(FULL_PATH);
-  if (path.extname(packageDocumentPath) === '.opf') {
+  if (extname(packageDocumentPath) === '.opf') {
     return packageDocumentPath;
   } else {
     throw new Error('no .opf file could be found in META-INF/container.xml');
@@ -212,13 +345,13 @@ function toc(tocHtml, manifest, spine) {
   var items$$1 = [];
 
   var tocItem = getTocItem(manifest);
-  var tocItemPath = path.dirname(tocItem.href);
+  var tocItemPath = dirname(tocItem.href);
   parse(tocHtml.querySelector(TAG$3), ROOT);
 
   function parse(snippet, id, href, label, parentId) {
     var level = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
 
-    var hrefWithoutHash = href && path.join(tocItemPath, href.split('#')[0]);
+    var hrefWithoutHash = href && join(tocItemPath, href.split('#')[0]);
     var manifestId = Object.keys(manifest.byId).find(function (id) {
       return manifest.byId[id].href === hrefWithoutHash;
     });
@@ -322,9 +455,9 @@ var OPF_DIRECTORY = 'OPS';
 
 function containerHtml(uri) {
   var source = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : TOC_HTML;
-  var path$$1 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : OPF_DIRECTORY;
+  var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : OPF_DIRECTORY;
 
-  return fetch(uri + '/' + path$$1 + '/' + source, { credentials: 'include' }).then(function (res) {
+  return fetch(uri + '/' + path + '/' + source, { credentials: 'include' }).then(function (res) {
     return res.text();
   }).then(function (body) {
     return parseRawHtml(body);
@@ -339,7 +472,7 @@ function parse(uri) {
   return containerXml(uri).then(function (containerXml$$1) {
     return rootFile(containerXml$$1);
   }).then(function (rootFile$$1) {
-    packageDirectory = path.dirname(rootFile$$1);
+    packageDirectory = dirname(rootFile$$1);
     return rootXml(uri, rootFile$$1);
   }).then(function (rootXml$$1) {
     var manifest$$1 = manifest(rootXml$$1, manifestMediaTypeWhitelist);
@@ -366,8 +499,8 @@ function parse(uri) {
   });
 }
 
-function manifestItemXml(uri, source, path$$1) {
-  return xml(uri + '/' + path$$1 + '/' + source);
+function manifestItemXml(uri, source, path) {
+  return xml(uri + '/' + path + '/' + source);
 }
 
 // this function will return DOM parsed nodes that are not comments or text nodes containing whitespace
@@ -526,7 +659,7 @@ function attrs(itemXml) {
 }
 
 function resolvePath(baseUri, relativePath) {
-  return path.resolve(baseUri, relativePath);
+  return resolve(baseUri, relativePath);
 }
 
 function parse$1(xml, baseUri) {
@@ -535,7 +668,7 @@ function parse$1(xml, baseUri) {
   switch (xml.nodeName) {
     case AUDIO:
       ret = attrs(xml);
-      if (ret.src && !path.isAbsolute(ret.src)) {
+      if (ret.src && !isAbsolute(ret.src)) {
         ret.src = resolvePath(baseUri, ret.src);
       }
       ret.clipBegin = ret.clipBegin && parseClockValue(ret.clipBegin);
@@ -564,7 +697,7 @@ function parse$1(xml, baseUri) {
 
     case TEXT:
       ret = attrs(xml);
-      if (ret.src && !path.isAbsolute(ret.src)) {
+      if (ret.src && !isAbsolute(ret.src)) {
         ret.src = resolvePath(baseUri, ret.src);
       }
 
@@ -638,13 +771,13 @@ function getMediaOverlayItems(manifest) {
   });
 }
 
-function fetchAll(uri, items, manifest, path$$1) {
+function fetchAll(uri, items, manifest, path) {
   return Promise.all(items.map(function (spineId) {
     var smilId = manifest.byId[spineId].mediaOverlay;
     var smilUri = manifest.byId[smilId].href;
 
 
-    return manifestItemXml(uri, smilUri, path$$1).then(function (manifestItemsXml) {
+    return manifestItemXml(uri, smilUri, path).then(function (manifestItemsXml) {
       return { manifestItemsXml: manifestItemsXml, smilUri: smilUri };
     });
   }));
@@ -661,7 +794,7 @@ function parseAll(items, manifest, metadata, uri) {
       var refinement = metadata.mediaOverlayDurations.find(function (mod) {
         return mod.refines === '#' + smilId;
       });
-      var baseUri = path.dirname(smilDetail.smilUri);
+      var baseUri = dirname(smilDetail.smilUri);
       byId[smilId] = smilData(smilDetail.manifestItemsXml, smilId, refinement, baseUri);
     });
 
@@ -672,9 +805,9 @@ function parseAll(items, manifest, metadata, uri) {
   };
 }
 
-function smil(uri, manifest, metadata, path$$1) {
+function smil(uri, manifest, metadata, path) {
   var items = getMediaOverlayItems(manifest);
-  return fetchAll(uri, items, manifest, path$$1).then(function (smilData$$1) {
+  return fetchAll(uri, items, manifest, path).then(function (smilData$$1) {
     return parseAll(items, manifest, metadata, uri)(smilData$$1);
   }).catch(function (error) {
     return console.error(error);
@@ -687,7 +820,7 @@ function parseSmil(uri, manifest, metadata, packageDirectory) {
 
 function parseSingleSmil(src, id, refinement, baseUri) {
     return xml(src).then(function (xml$$1) {
-        return smilData(xml$$1, id, refinement, path.dirname(src));
+        return smilData(xml$$1, id, refinement, dirname(src));
     });
 }
 
