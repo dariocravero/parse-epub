@@ -1,6 +1,0 @@
-{
-  "plugins": [
-    "transform-export-extensions",
-    "transform-object-rest-spread"
-  ]
-}

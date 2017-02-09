@@ -1,26 +1,9 @@
-const babel = require('rollup-plugin-babel');
+const pkg = require('./package.json');
+const external = Object.keys(pkg.devDependencies).concat(Object.keys(pkg.dependencies));
 
-module.exports = {
-  dest: 'cjs.js',
+export default {
+  dest: 'lib.js',
   entry: 'index.js',
   format: 'cjs',
-  moduleName: 'parse-epub',
-  external: [
-    'regenerator-runtime'
-  ],
-  plugins: [
-    {
-      resolveId(importee) {
-        if (/regenerator$/.test(importee)) {
-          return 'regenerator-runtime'
-        }
-      }
-    },
-    babel({
-      exclude: 'node_modules/**',
-      presets: [
-        require.resolve('babel-preset-react-app-rollup')
-      ]
-    })
-  ]
+  external,
 };
