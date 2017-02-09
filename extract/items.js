@@ -1,17 +1,14 @@
-import querySelectorAll from '../query-selector-all.js';
-
-export default function items(xml, item, attributes, mediaTypeWhitelist) {
+export default function items(list, attributes, mediaTypeWhitelist) {
   const inWhitelist = item => (
-    !mediaTypeWhitelist ||
-    mediaTypeWhitelist.indexOf(item.attributes[attributes.mediaType]) > -1
+    !mediaTypeWhitelist || mediaTypeWhitelist.includes(item[attributes.mediaType])
   );
 
-  return querySelectorAll(xml, item).filter(inWhitelist).map(item => {
+  return list.filter(inWhitelist).map(item => {
     const ret = {};
 
     Object.keys(attributes).forEach(key => {
       try {
-        ret[key] = item.attributes[attributes[key]]
+        ret[key] = item[attributes[key]]
       } catch(exception) {
         ret[key] = undefined;
         console.error(`Can't get ${key} for ${item}.`);

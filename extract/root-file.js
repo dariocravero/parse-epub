@@ -1,11 +1,10 @@
 import { extname as getExtension } from '../path-helpers.js';
-import querySelector from '../query-selector.js';
 
 const ROOT_FILE = 'rootfile';
 const FULL_PATH = 'full-path';
 
 export default function rootFile(xml) {
-  const packageDocumentPath = querySelector(xml, ROOT_FILE).attributes[FULL_PATH];
+  const packageDocumentPath = xml.container.rootfiles.rootfile['full-path'];
 
   if (getExtension(packageDocumentPath) === '.opf') {
     return packageDocumentPath;

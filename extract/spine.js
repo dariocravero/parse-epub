@@ -10,6 +10,7 @@ const ITEM = 'itemref';
 const TAG = 'spine';
 const YES = 'yes';
 
+// TODO do the same as the manifest
 export default function spine(rootXml, tocItem) {
   return normalise(
     items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES)

@@ -1,6 +1,9 @@
-import { tocHtml } from './data.js'
-import extractToc from '../extract/toc.js'
+import { contentOpf, tocHtml } from './data.js';
+import extractManifest from '../extract/manifest.js';
+import extractToc from '../extract/toc.js';
 
 test('#extractToc', () => {
-  expect(extractToc(tocHtml)).toMatchSnapshot();
+  const manifest = extractManifest(contentOpf)
+  const spine = [] // TODO
+  expect(extractToc(tocHtml, manifest, spine)).toMatchSnapshot();
 });

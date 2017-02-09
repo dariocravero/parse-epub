@@ -7,6 +7,7 @@ import uniqueId from 'mini-unique-id';
 const TAG = 'nav[epub\\\:type~=toc]';
 export const ROOT = '__root__';
 
+// TODO do the same as manifest
 export default function toc(tocHtml, manifest, spine) {
   const byId = {};
   const byManifestId = {};
