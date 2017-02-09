@@ -1,13 +1,15 @@
+import {
+  containerXml as fetchContainerXml,
+  rootXml as fetchRootXml,
+  tocHtml as fetchTocHtml
+} from '../fetch.js';
 import { dirname } from '../path-helpers.js';
-import extractManifest from '../extract/manifest';
-import extractMetadata from '../extract/metadata';
-import extractRootFile from '../extract/root-file';
-import extractSpine from '../extract/spine';
-import extractToc from '../extract/toc';
-import fetchContainerXml from '../fetch/container-xml';
-import fetchRootXml from '../fetch/root-xml';
-import fetchTocHtml from '../fetch/toc-html';
-import getTocItem from '../extract/get-toc-item';
+import extractManifest from '../extract/manifest.js';
+import extractMetadata from '../extract/metadata.js';
+import extractRootFile from '../extract/root-file.js';
+import extractSpine from '../extract/spine.js';
+import extractToc from '../extract/toc.js';
+import getTocItem from '../extract/get-toc-item.js';
 
 export default function parse(uri, manifestMediaTypeWhitelist=false) {
   let packageDirectory;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="en" unique-identifier="pub-id">
+    <!--I'm assuming prefixes for marc, onix, and xsd are predefined-->
+
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:title id="title">Moby-Dick</dc:title>
+    </metadata>
+    <manifest>
+        <item id="xchapter_004" href="chapter_004.xhtml" media-type="application/xhtml+xml"/>
+    </manifest>
+    <spine>
+        <itemref idref="cover" linear="no"/>
+    </spine>
+</package>

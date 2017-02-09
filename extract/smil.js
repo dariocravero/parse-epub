@@ -1,5 +1,5 @@
 import { dirname } from '../path-helpers.js';
-import { manifestItemXml as fetchManifestItemXml } from '../fetch/index.js';
+import { manifestItemXml as fetchManifestItemXml } from '../fetch.js';
 import extractSmilData from './smil-data';
 
 const SMIL_MEDIA_TYPE = 'application/smil+xml';

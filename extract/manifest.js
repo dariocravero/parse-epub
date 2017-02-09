@@ -1,5 +1,6 @@
-import items from './items';
-import normalise from './normalise';
+import items from './items.js';
+import normalise from './normalise.js';
+import querySelector from '../query-selector.js';
 
 const ATTRIBUTES = {
   href: 'href',
@@ -11,8 +12,10 @@ const ATTRIBUTES = {
 const ITEM = 'item';
 const TAG = 'manifest';
 
-export default function manifest(rootXml, mediaTypeWhitelist) {
-  return normalise(items(rootXml.querySelector(TAG), ITEM, ATTRIBUTES, mediaTypeWhitelist));
+export default function manifest(xml, mediaTypeWhitelist=false) {
+  // console.log(JSON.stringify(xml))
+  // console.log(querySelector(xml, TAG))
+  return normalise(items(querySelector(xml, TAG), ITEM, ATTRIBUTES, mediaTypeWhitelist));
 }
 
 // TODO

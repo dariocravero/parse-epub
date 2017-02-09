@@ -1,0 +1,16 @@
+exports[`test #extractManifest 1`] = `
+Object {
+  "byId": Object {
+    "undefined": Object {
+      "href": undefined,
+      "id": undefined,
+      "mediaOverlay": undefined,
+      "mediaType": undefined,
+      "properties": undefined,
+    },
+  },
+  "items": Array [
+    undefined,
+  ],
+}
+`;

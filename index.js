@@ -1,4 +1,6 @@
-export parseBook from './parse/book';
-export parseAllSmil from './parse/all-smil';
-export parseSingleSmil from './parse/single-smil';
-export parseSmil from './parse/smil';
+import parseBook from './parse/book.js';
+import parseAllSmil from './parse/all-smil.js';
+import parseSingleSmil from './parse/single-smil.js';
+import parseSmil from './parse/smil.js';
+
+export { parseBook, parseAllSmil, parseSingleSmil, parseSmil };

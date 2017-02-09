@@ -1,6 +1,6 @@
 import { join, dirname } from '../path-helpers.js';
 import items from './items';
-import getTocItem from './get-toc-item';
+import getTocItem from './get-toc-item.js';
 import uniqueId from 'mini-unique-id';
 
 // Spec says we need to select the TOC using the epub:type=toc property
