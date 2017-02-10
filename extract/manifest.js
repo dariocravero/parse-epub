@@ -1,15 +1,4 @@
-import items from './items.js';
 import normalise from './normalise.js';
-
-const ATTRIBUTES = {
-  href: 'href',
-  id: 'id',
-  mediaType: 'media-type',
-  mediaOverlay: 'media-overlay',
-  properties: 'properties'
-};
-const ITEM = 'item';
-const TAG = 'manifest';
 
 const DEFAULT_WHITELIST = [
   'application/xhtml+xml',
@@ -17,7 +6,19 @@ const DEFAULT_WHITELIST = [
 ];
 
 export default function manifest(xml, mediaTypeWhitelist=DEFAULT_WHITELIST) {
-  return normalise(items(xml.package.manifest.item, ATTRIBUTES, mediaTypeWhitelist));
+  const items = Array.isArray(mediaTypeWhitelist) ?
+    xml.package.manifest.item.filter(i => mediaTypeWhitelist.includes(i['media-type'])) :
+    xml.package.manifest.item;
+
+  return normalise(
+    items.map(({ href, id, 'media-type':mediaType, 'media-overlay':mediaOverlay, properties }) => ({
+      href,
+      id,
+      mediaType,
+      mediaOverlay,
+      properties
+    }))
+  );
 }
 
 // TODO

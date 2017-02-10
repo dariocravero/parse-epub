@@ -1,5 +1,4 @@
 import { join, dirname } from '../path-helpers.js';
-import items from './items';
 import getTocItem from './get-toc-item.js';
 import uniqueId from 'mini-unique-id';
 
