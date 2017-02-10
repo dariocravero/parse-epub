@@ -756,10 +756,6 @@ html-encoding-sniffer@^1.0.1:
   dependencies:
     whatwg-encoding "^1.0.1"
 
-html2json@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/html2json/-/html2json-1.0.2.tgz#c9d6d202fa65402386c202b345cf51bce80ed1ef"
-
 http-signature@~1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/http-signature/-/http-signature-1.1.1.tgz#df72e267066cd0ac67fb76adf8e134a8fbcf91bf"
@@ -1399,10 +1395,6 @@ mime-types@^2.1.12, mime-types@~2.1.7:
   dependencies:
     mime-db "~1.25.0"
 
-mini-unique-id@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/mini-unique-id/-/mini-unique-id-1.0.1.tgz#747e13994bba69f00da3e31a5461e4124e24c328"
-
 minimatch@^3.0.2, minimatch@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.0.3.tgz#2a4e4090b96b2db06a9d7df01055a62a77c9b774"
@@ -1897,10 +1889,6 @@ tunnel-agent@~0.4.1:
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.3"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.3.tgz#3da382f670f25ded78d7b3d1792119bca0b7132d"
-
-txml@^1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/txml/-/txml-1.0.17.tgz#fa46a18c07cc316380eeae90277ce4a40f992f40"
 
 type-check@~0.3.2:
   version "0.3.2"

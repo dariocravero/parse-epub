@@ -31,9 +31,6 @@
   },
   "dependencies": {
     "flatten": "^1.0.2",
-    "html2json": "^1.0.2",
-    "mini-unique-id": "^1.0.1",
-    "txml": "^1.0.17",
     "x2js": "^3.1.0"
   },
   "version": "3.4.1"
