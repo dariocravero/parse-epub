@@ -31,13 +31,13 @@ const NS = '*';
 const META = 'meta';
 const TAG = 'metadata';
 
-export default function metadata(rootXml, manifest) {
+export default function metadata(parsedRootXml, manifest) {
   let ret = {};
-  const xml = rootXml.querySelector(TAG);
+  const metadataInfo = parsedRootXml.package.metadata;
 
   function attribute(attr, required) {
     try {
-      ret[attr] = xml.getElementsByTagNameNS(NS, attr)[0].textContent;
+      ret[attr] = metadataInfo[attr].__text;
     } catch(exception) {
       if (required) {
         ret[attr] = undefined;
@@ -50,35 +50,42 @@ export default function metadata(rootXml, manifest) {
   ATTRIBUTES.REQUIRED.forEach(attr => attribute(attr, true));
 
   ret.coverHref = coverHref(manifest);
+  ret.mediaOverlayDurations = [];
+  ret.mediaDuration;
+  let mediaDurationData = [];
+  let mediaNarratorData = [];
 
-  const mediaDurationXml = xml.querySelectorAll(`${META}[property='${ATTRIBUTES.PROPERTIES.mediaDuration}']`);
-  if (mediaDurationXml.length) {
+  metadataInfo.meta.forEach(item => {
+    if (item.property === ATTRIBUTES.PROPERTIES.mediaDuration) {
+      mediaDurationData.push(item);
+    } else if (item.property === ATTRIBUTES.PROPERTIES.mediaActiveClass) {
+      ret.mediaActiveClass = item.__text;
+    } else if (item.property === ATTRIBUTES.PROPERTIES.mediaNarrator) {
+      mediaNarratorData.push(item);
+    }
+  });
+
+  if (mediaDurationData.length) {
     ret.mediaOverlayDurations = [];
     ret.mediaDuration;
-    Array.prototype.forEach.call(mediaDurationXml, item => {
-      const refines = item.getAttribute('refines');
+    mediaDurationData.forEach(item => {
+      const refines = item.refines;
 
       if (refines) {
         // If refines is specified, it's a media overlay duration
         ret.mediaOverlayDurations.push({
-          refines: item.getAttribute('refines'),
-          clockValue: item.textContent
+          refines: refines,
+          clockValue: item.__text
         });
       } else {
         // Otherwise it's the whole publication's duration
-        ret.mediaDuration = item.textContent;
+        ret.mediaDuration = item.__text;
       }
     });
   }
 
-  const mediaActiveClassXml = xml.querySelector(`${META}[property='${ATTRIBUTES.PROPERTIES.mediaActiveClass}']`);
-  if (mediaActiveClassXml) {
-    ret.mediaActiveClass = mediaActiveClassXml.textContent;
-  }
-
-  const mediaNarratorXml = xml.querySelectorAll(`${META}[property='${ATTRIBUTES.PROPERTIES.mediaNarrator}']`);
-  if (mediaNarratorXml.length) {
-    ret.mediaNarrator = Array.prototype.map.call(mediaNarratorXml, item => item.textContent);
+  if (mediaNarratorData.length) {
+    ret.mediaNarrator = mediaNarratorData.map(item => item.__text);
   }
 
   return ret;
