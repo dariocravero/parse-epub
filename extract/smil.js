@@ -1,14 +1,5 @@
-import canIgnoreNode  from './ignore-node';
 import parseClockValue from './parse-clock-value';
-import { isAbsolute, resolve } from '../path-helpers.js';
-
-const AUDIO = 'audio';
-const BODY = 'body';
-const PAR = 'par';
-const SEQ = 'seq';
-const TAG = 'smil';
-const TEXT = 'text';
-const VERSION = 'version';
+import { isAbsolute, resolveLocation } from '../path-helpers.js';
 
 const parse = (root, baseUri) => {
   let ret = [];
@@ -68,12 +59,8 @@ export default function smilData(root, id, refinement={}, baseUri) {
   return ret;
 }
 
-function getValidChildNodes(xml) {
-  return Array.prototype.filter.call(xml.childNodes, canIgnoreNode);
-}
-
 function resolvePath(baseUri, relativePath) {
-  return resolve(baseUri, relativePath);
+  return resolveLocation(baseUri, relativePath);
 }
 
 const getAudio = (root, baseUri) => {

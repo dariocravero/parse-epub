@@ -3,7 +3,7 @@ import {
   rootXml as fetchRootXml,
   tocHtml as fetchTocHtml
 } from '../fetch.js';
-import { dirname } from '../path-helpers.js';
+import { getDirname } from '../path-helpers.js';
 import extractManifest from '../extract/manifest.js';
 import extractMetadata from '../extract/metadata.js';
 import extractRootFile from '../extract/root-file.js';
@@ -17,7 +17,7 @@ export default function parse(uri, manifestMediaTypeWhitelist=false) {
   return fetchContainerXml(uri)
     .then(containerXml => extractRootFile(containerXml))
     .then(rootFile => {
-      packageDirectory = dirname(rootFile);
+      packageDirectory = getDirname(rootFile);
       return fetchRootXml(uri, rootFile);
     })
     .then(rootXml => {

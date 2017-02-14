@@ -1,4 +1,4 @@
-import { extname as getExtension } from '../path-helpers.js';
+import { getExtension } from '../path-helpers.js';
 
 const ROOT_FILE = 'rootfile';
 const FULL_PATH = 'full-path';

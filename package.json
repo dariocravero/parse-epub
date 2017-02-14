@@ -31,7 +31,8 @@
     "rollup-watch": "^3.2.2"
   },
   "dependencies": {
+    "resolve-pathname": "^2.0.2",
     "x2js": "^3.1.0"
   },
-  "version": "4.0.0"
+  "version": "4.0.1"
 }

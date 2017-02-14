@@ -1,4 +1,4 @@
-import { join, dirname } from '../path-helpers.js';
+import { join, getDirname } from '../path-helpers.js';
 import getTocItem from './get-toc-item.js';
 import uniqueId from '../unique-id.js';
 
@@ -13,7 +13,7 @@ export default function toc(tocHtml, manifest, spine) {
   const items = [];
 
   const tocItem = getTocItem(manifest);
-  const tocItemPath = dirname(tocItem.href);
+  const tocItemPath = getDirname(tocItem.href);
   parse(tocHtml.html.body.nav, ROOT);
 
   function parse(rootNode, id, href, label, parentId, level=0) {
