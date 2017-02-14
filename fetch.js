@@ -1,11 +1,13 @@
-import parseXml from 'txml';
+import XmlParser from 'x2js';
+
+const parser = new XmlParser({ attributePrefix: '' });
 
 const CONTAINER_XML = 'META-INF/container.xml';
 const TOC_HTML = 'toc.xhtml';
 const OPS_DIRECTORY = 'OPS';
 
 export const xml = uri => (
-  fetch(uri, { credentials: 'include' }).then(r => r.text()).then(t => parseXml(t)[0])
+  fetch(uri, { credentials: 'include' }).then(r => r.text()).then(t => parser.xml2js(t))
 );
 
 export const containerXml = (uri, source=CONTAINER_XML) => xml(`${uri}/${source}`);

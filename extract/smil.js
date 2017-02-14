@@ -10,15 +10,56 @@ const TAG = 'smil';
 const TEXT = 'text';
 const VERSION = 'version';
 
+const parse = (root, baseUri) => {
+  let ret = [];
+
+  if (root.seq) {
+    const list = Array.isArray(root.seq)? root.seq : [root.seq]
+
+    ret = list.map(s => ({
+      childNodes: parse(s, baseUri),
+      isPar: false,
+      textref: s['epub:textref'],
+      // optional TODO maybe we want to only include them if they're there
+      id: s.id,
+      type: s['epub:type'],
+    }))
+  } else if (root.par) {
+    const list = Array.isArray(root.par)? root.par : [root.par]
+
+    ret = list.map(p => {
+      const par = {
+        isPar: true,
+        text: getText(p.text, baseUri),
+        // optional TODO maybe we want to only include them if they're there
+        id: p.id,
+        type: p['epub:type'],
+        textref: p['epub:textref'],
+      }
+
+      if (p.audio) {
+        par.audio = getAudio(p.audio, baseUri)
+      }
+      return par
+    })
+  }
+
+  return ret;
+}
+
 // TODO the parsing of the `clockValue` could be deferred
 // up to when its used. We put it in here to comply with Readium's data structure needs.
-export default function smilData(xml, id, refinement={}, baseUri) {
-  const smilXml = xml.querySelector(TAG);
-
+export default function smilData(root, id, refinement={}, baseUri) {
   const ret = {
-    body: parse(smilXml.querySelector(BODY), baseUri),
+    body: {
+      childNodes: parse(root.smil.body, baseUri),
+      // optional TODO maybe we want to only include them if they're there
+      id: root.smil.id,
+      type: root.smil['epub:type'],
+      textref: root.smil['epub:textref'],
+    },
     id,
-    version: smilXml.getAttribute(VERSION)
+    version: root.smil.version
   };
 
   if (refinement.clockValue) {
@@ -31,126 +72,36 @@ function getValidChildNodes(xml) {
   return Array.prototype.filter.call(xml.childNodes, canIgnoreNode);
 }
 
-function attrs(itemXml) {
-  const node = NODES[itemXml.nodeName];
-  const ret = {};
-
-  function attr(key, attr, required) {
-    try {
-      const val = itemXml.getAttribute(attr);
-      if (val) {
-        ret[key] = val;
-      } else {
-        throw Exception(`Attribute tag ${attr} exists but there's no value.`);
-      }
-    } catch(exception) {
-      if (required) {
-        ret[key] = false;
-        console.error(`Can't get required attribute '${attr}' for key '${key}' on smil.`, itemXml);
-        console.error(exception);
-      }
-    }
-  }
-
-  Object.keys(node.OPTIONAL).forEach(key => attr(key, node.OPTIONAL[key], false));
-  Object.keys(node.REQUIRED).forEach(key => attr(key, node.REQUIRED[key], true));
-
-  return ret;
-}
-
 function resolvePath(baseUri, relativePath) {
   return resolve(baseUri, relativePath);
 }
 
-function parse(xml, baseUri) {
-  let ret;
-
-  switch(xml.nodeName) {
-  case AUDIO:
-    ret = attrs(xml);
-    if(ret.src && !isAbsolute(ret.src)) {
-      ret.src = resolvePath(baseUri, ret.src);
-    }
-    ret.clipBegin = ret.clipBegin && parseClockValue(ret.clipBegin);
-    ret.clipEnd = ret.clipEnd && parseClockValue(ret.clipEnd);
-    break;
-
-  case PAR:
-    ret = attrs(xml);
-    // handle the fact that audio tags are optional
-    const audioTag = xml.querySelector(AUDIO);
-    if (audioTag) {
-      ret.audio = parse(audioTag, baseUri);
-    }
-    ret.isPar = true;
-    ret.text = parse(xml.querySelector(TEXT), baseUri);
-    break;
-
-  case BODY:
-  case SEQ:
-    ret = attrs(xml);
-    ret.childNodes = getValidChildNodes(xml).map(arr => parse(arr, baseUri));
-    ret.isPar = false;
-    break;
-
-  case TEXT:
-    ret = attrs(xml);
-    if(ret.src && !isAbsolute(ret.src)) {
-      ret.src = resolvePath(baseUri, ret.src);
-    }
-    const [ srcFile, srcFragmentId ] = ret.src.split('#');
-    ret.srcFile = srcFile;
-    ret.srcFragmentId = srcFragmentId;
-    break;
-
-  default: break;
+const getAudio = (root, baseUri) => {
+  const ret = {
+    id: root.id,
+    clipBegin: root.clipBegin && parseClockValue(root.clipBegin),
+    clipEnd: root.clipEnd && parseClockValue(root.clipEnd),
+    src: root.src,
   }
 
+  if (ret.src && !isAbsolute(ret.src)) {
+    ret.src = resolvePath(baseUri, ret.src);
+  }
   return ret;
 }
 
-const NODES = {
-  'audio': {
-    REQUIRED: {
-      src: 'src'
-    },
-    OPTIONAL: {
-      id: 'id',
-      clipBegin: 'clipBegin',
-      clipEnd: 'clipEnd'
-    }
-  },
-  'body': {
-    REQUIRED: {},
-    OPTIONAL: {
-      id: 'id',
-      textref: 'epub:textref',
-      type: 'epub:type'
-    }
-  },
-  'par': {
-    REQUIRED: {},
-    OPTIONAL: {
-      id: 'id',
-      textref: 'epub:textref',
-      type: 'epub:type'
-    }
-  },
-  'seq': {
-    REQUIRED: {
-      textref: 'epub:textref'
-    },
-    OPTIONAL: {
-      id: 'id',
-      type: 'epub:type'
-    }
-  },
-  'text': {
-    REQUIRED: {
-      src: 'src'
-    },
-    OPTIONAL: {
-      id: 'id'
-    }
+const getText = (root, baseUri) => {
+  const ret = {
+    id: root.id,
+    src: root.src,
+  };
+
+  if (ret.src && !isAbsolute(ret.src)) {
+    ret.src = resolvePath(baseUri, ret.src);
   }
-};
+
+  const [ srcFile, srcFragmentId ] = ret.src.split('#');
+  ret.srcFile = srcFile;
+  ret.srcFragmentId = srcFragmentId;
+  return ret;
+}

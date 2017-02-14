@@ -1,4 +1,4 @@
 import parseBook from './parse/book.js';
-import parseSingleSmil from './parse/single-smil.js';
+import parseSmil from './parse/smil.js';
 
-export { parseBook, parseSingleSmil };
+export { parseBook, parseSmil };

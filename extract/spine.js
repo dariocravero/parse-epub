@@ -2,7 +2,7 @@ import normalise from './normalise';
 
 export default function spine(xml, tocItem=false) {
   const items = tocItem ?
-    xml.package.spine.itemref.filter(i => i.id === tocItem) :
+    xml.package.spine.itemref.filter(i => i.id !== tocItem) :
     xml.package.spine.itemref;
 
   return normalise(

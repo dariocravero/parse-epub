@@ -29,7 +29,7 @@ export default function toc(tocHtml, manifest, spine) {
         childNodes = Array.from(ol.li).map(node => {
           const link = node.a;
           const childId = uniqueId();
-          return parse(node, childId, link.href, link.textContent, id, level+1) && childId;
+          return parse(node, childId, link.href, link.__text, id, level+1) && childId;
         }).filter(Boolean);
       }
 
