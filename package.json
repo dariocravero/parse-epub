@@ -1,15 +1,12 @@
 {
   "name": "parse-epub",
   "description": "A modern and modular ePub parser",
-  "main": "index.js",
+  "main": "lib.js",
   "scripts": {
-    "build": "babel --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
-    "build:watch": "babel --watch --extensions .es6 --ignore node_modules/**,__tests__/** --out-dir . .",
-    "clean": "find . -name '*.js*' -type f -not -path './package.json' -not -path './node_modules/*' -exec rm {} \\;",
-    "prepublish": "npm run build",
-    "start": "watchify --transform babelify --extension .es6 --outfile playground/app.js playground/app.es6 & static playground --cache 0 -a 0.0.0.0",
-    "test": "browserify --transform babelify --extension .es6 __tests__/index.es6 | smokestack",
-    "test:one:watch": "nodemon --ext js,es6 --watch extract --exec .bin/test-one"
+    "bundle": "rollup --config rollup.config.js",
+    "prepublish": "NODE_ENV=production npm run bundle",
+    "test": "jest __tests__/*-test.js",
+    "test:watch": "jest --watch __tests__/*-test.js"
   },
   "repository": {
     "type": "git",
@@ -27,21 +24,14 @@
   },
   "homepage": "https://github.com/dariocravero/parse-epub#readme",
   "devDependencies": {
-    "babel": "^5.8.23",
-    "babel-eslint": "^4.1.3",
-    "babelify": "^6.3.0",
-    "browserify": "^11.2.0",
-    "core-js": "^1.2.1",
-    "fetch-mock": "^1.5.2",
-    "jsdom": "^6.5.1",
-    "node-static": "^0.7.7",
-    "smokestack": "^3.4.1",
-    "tape": "^4.2.1",
-    "watchify": "^3.6.1"
+    "babel-jest": "^18.0.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.22.0",
+    "jest": "^18.1.0",
+    "rollup": "^0.41.4",
+    "rollup-watch": "^3.2.2"
   },
   "dependencies": {
-    "lodash": "^3.10.1",
-    "path-browserify": "0.0.0"
+    "x2js": "^3.1.0"
   },
   "version": "3.4.1"
 }

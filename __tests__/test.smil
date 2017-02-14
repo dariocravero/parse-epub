@@ -1,0 +1,15 @@
+<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+<body>
+
+        <seq epub:textref="selena_s_blog.xhtml">
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-483ef689101641c8a9b8c1b32c707d19" /><audio clipBegin="00:00:00.000" clipEnd="00:00:03.690" src="../../audio/sn_77e0-c01-s02-020.mp3"/></par>
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-2e2efa6ce8074352a82060a20b9294a9" /><audio clipBegin="00:00:00.000" clipEnd="00:00:25.089" src="../../audio/sn_77e0-c01-s03-023.mp3"/></par>
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-618ee9678b494b278e0592ede884e361" /><audio clipBegin="00:00:00.000" clipEnd="00:00:39.859" src="../../audio/sn_77e0-c01-s03-024.mp3"/></par>
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-333ff0a0742c4d25b4e6c2fb5ac51764" /><audio clipBegin="00:00:00.000" clipEnd="00:00:28.289" src="../../audio/sn_77e0-c01-s03-026.mp3"/></par>
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-2ba50ef8103a4961807dde37efd4664d" /><audio clipBegin="00:00:00.000" clipEnd="00:00:31.820" src="../../audio/sn_77e0-c01-s03-027.mp3"/></par>
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-154cfc4c605546708794e73f419336e0" /><audio clipBegin="00:00:00.000" clipEnd="00:00:21.550" src="../../audio/sn_77e0-c01-s03-028.mp3"/></par>
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-c7e93d0d9d8b4159a8f1b2517ed9a0ac" /><audio clipBegin="00:00:00.000" clipEnd="00:00:22.250" src="../../audio/sn_77e0-c01-s03-029.mp3"/></par>
+            <par><text src="../../s9ml/culture_and_belonging/selena_s_blog.xhtml#data-uuid-f4a776b35fb54a0db8f7c12135b7b1b8" /><audio clipBegin="00:00:00.000" clipEnd="00:00:33.109" src="../../audio/sn_77e0-c01-s03-030.mp3"/></par>
+        </seq>
+</body>
+</smil>

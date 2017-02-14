@@ -1,0 +1,85 @@
+exports[`test #extractMetadata 1`] = `
+Object {
+  "coverHref": undefined,
+  "creator": "Tanya Kelly",
+  "identifier": "Eugen-broke-it-again",
+  "language": "en-US",
+  "mediaActiveClass": "-epub-media-overlay-active",
+  "mediaDuration": "Invalid date",
+  "mediaOverlayDurations": Array [
+    Object {
+      "clockValue": "00:07:13.140",
+      "refines": "#s0001",
+    },
+    Object {
+      "clockValue": "00:09:22.490",
+      "refines": "#s0005",
+    },
+    Object {
+      "clockValue": "00:10:30.650",
+      "refines": "#s0007",
+    },
+    Object {
+      "clockValue": "00:05:48.199",
+      "refines": "#s0011",
+    },
+    Object {
+      "clockValue": "00:00:57.000",
+      "refines": "#s0013",
+    },
+    Object {
+      "clockValue": "00:00:43.340",
+      "refines": "#s0015",
+    },
+    Object {
+      "clockValue": "00:07:08.839",
+      "refines": "#s0033",
+    },
+    Object {
+      "clockValue": "Invalid date",
+      "refines": "#s0035",
+    },
+    Object {
+      "clockValue": "00:00:29.030",
+      "refines": "#s0037",
+    },
+    Object {
+      "clockValue": "00:07:50.940",
+      "refines": "#s0048",
+    },
+    Object {
+      "clockValue": "00:00:13.269",
+      "refines": "#s0050",
+    },
+    Object {
+      "clockValue": "00:08:09.420",
+      "refines": "#s0052",
+    },
+    Object {
+      "clockValue": "00:06:57.280",
+      "refines": "#s0056",
+    },
+    Object {
+      "clockValue": "00:06:32.559",
+      "refines": "#s0058",
+    },
+    Object {
+      "clockValue": "00:00:26.230",
+      "refines": "#s0060",
+    },
+    Object {
+      "clockValue": "00:02:10.730",
+      "refines": "#s0064",
+    },
+    Object {
+      "clockValue": "00:01:01.429",
+      "refines": "#s0066",
+    },
+    Object {
+      "clockValue": "00:07:08.149",
+      "refines": "#s0068",
+    },
+  ],
+  "title": "LA Collect 2017 CA G8 eMag",
+}
+`;

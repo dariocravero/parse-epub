@@ -1,5 +1,4 @@
-**/*.js
 *.log
 .DS_Store
 node_modules/*
-playground/books
+lib.js
