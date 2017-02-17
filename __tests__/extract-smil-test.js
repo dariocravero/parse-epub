@@ -7,5 +7,5 @@ const SMIL_ID = 's0036';
 
 test('#extractSmil', () => {
   const metadata = extractMetadata(contentOpf, extractManifest(contentOpf));
-  expect(extractSmil(testSmil, SMIL_ID, metadata.mediaOverlayDurations, './OPS')).toMatchSnapshot();
+  expect(extractSmil(testSmil, SMIL_ID, metadata.mediaOverlayDurations, '/book/OPS')).toMatchSnapshot();
 });

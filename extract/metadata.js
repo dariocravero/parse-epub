@@ -24,7 +24,10 @@ const ATTRIBUTES = {
   PROPERTIES: {
     mediaActiveClass: 'media:active-class',
     mediaDuration: 'media:duration',
-    mediaNarrator: 'media:narrator'
+    mediaNarrator: 'media:narrator',
+    renditionLayout: 'rendition:layout',
+    renditionOrientation: 'rendition:orientation',
+    renditionSpread: 'rendition:spread'
   }
 }
 const NS = '*';
@@ -62,6 +65,12 @@ export default function metadata(parsedRootXml, manifest) {
       ret.mediaActiveClass = item.__text;
     } else if (item.property === ATTRIBUTES.PROPERTIES.mediaNarrator) {
       mediaNarratorData.push(item);
+    } else if (item.property === ATTRIBUTES.PROPERTIES.renditionLayout) {
+      ret.renditionLayout = item.__text;
+    } else if (item.property === ATTRIBUTES.PROPERTIES.renditionOrientation) {
+      ret.renditionOrientation = item.__text;
+    } else if (item.property === ATTRIBUTES.PROPERTIES.renditionSpread) {
+      ret.renditionSpread = item.__text;
     }
   });
 
