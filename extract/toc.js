@@ -3,18 +3,21 @@ import getTocItem from './get-toc-item.js';
 import uniqueId from '../unique-id.js';
 
 // Spec says we need to select the TOC using the epub:type=toc property
-const TAG = 'nav[epub\\\:type~=toc]';
+const NAV_ATTRIBUTE = 'epub:type';
+const NAV_VALUE = 'toc';
 export const ROOT = '__root__';
 
-// TODO do the same as manifest
 export default function toc(tocHtml, manifest, spine) {
   const byId = {};
   const byManifestId = {};
   const items = [];
-
+  const tocRoot = findTocRoot(tocHtml.html.body);
+  if (!tocRoot) {
+    throw 'The root node of your navigation document (table of contents) could not be found. Please ensure the file contains a nav element with an attribute of epub:type="toc"';
+  }
   const tocItem = getTocItem(manifest);
   const tocItemPath = getDirname(tocItem.href);
-  parse(tocHtml.html.body.nav, ROOT);
+  parse(tocRoot, ROOT);
 
   function parse(rootNode, id, href, label, parentId, level=0) {
     const hrefWithoutHash = href && join(tocItemPath, href.split('#')[0]);
@@ -64,6 +67,28 @@ export default function toc(tocHtml, manifest, spine) {
     byManifestId,
     items
   };
+}
+
+function findTocRoot(currentNode) {
+  let found = false;
+  Object.keys(currentNode).find(key => {
+    if (isRootNode(currentNode[key])) {
+      found = currentNode[key];
+      return true;
+    }
+    if (typeof currentNode[key] === 'object') {
+      return found = findTocRoot(currentNode[key]);
+    }
+  });
+  return found;
+}
+
+function isRootNode(node) {
+  if (typeof node !== 'undefined') {
+    return (node.hasOwnProperty(NAV_ATTRIBUTE) && node[NAV_ATTRIBUTE] === NAV_VALUE && node.hasOwnProperty('ol'));
+  } else {
+    return false;
+  }
 }
 
 // TODO
