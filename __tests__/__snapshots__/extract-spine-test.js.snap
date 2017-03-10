@@ -246,6 +246,11 @@ Object {
       "linear": true,
       "properties": undefined,
     },
+    "item-data-uuid-fake-page-without-linear": Object {
+      "id": "item-data-uuid-fake-page-without-linear",
+      "linear": true,
+      "properties": undefined,
+    },
     "item-data-uuid-fb124defa1ef4c04a4f79397ae047df0": Object {
       "id": "item-data-uuid-fb124defa1ef4c04a4f79397ae047df0",
       "linear": true,
@@ -259,6 +264,7 @@ Object {
   },
   "items": Array [
     "item-1471",
+    "item-data-uuid-fake-page-without-linear",
     "item-data-uuid-3b13d68a9f9447fe8bd6f2d7c7ea7403",
     "item-data-uuid-d2a6e8f4db704bae875c9b4c5dc209cc",
     "item-data-uuid-6d74e8e547ec455a9c00ebb37cb4a872",

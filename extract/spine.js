@@ -28,7 +28,7 @@ export default function spine(xml, tocItem=false) {
   const spine = normalise(
     items.map(({ idref:id, linear, properties}) => ({
       id,
-      linear: linear === 'yes',
+      linear: typeof linear === 'string' ? linear === 'yes' : true,
       properties: properties ? refineProperties(properties) : properties
     }))
   );
