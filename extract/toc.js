@@ -19,7 +19,7 @@ export default function toc(tocHtml, manifest, spine) {
   const tocItemPath = getDirname(tocItem.href);
   parse(tocRoot, ROOT);
 
-  function parse(rootNode, id, href, label, parentId, level=0) {
+  function parse(rootNode, id, href, label, parentId, level=0, hidden = false) {
     const hrefWithoutHash = href && join(tocItemPath, href.split('#')[0]);
     const manifestId = Object.keys(manifest.byId).find(id => manifest.byId[id].href === hrefWithoutHash);
 
@@ -29,22 +29,24 @@ export default function toc(tocHtml, manifest, spine) {
       let childNodes = [];
 
       if (ol) {
+        const listHidden = typeof ol.hidden === 'string';
         if (Array.isArray(ol.li)) {
           childNodes = Array.from(ol.li).map(node => {
             const link = node.a;
             const childId = uniqueId();
-            return parse(node, childId, link.href, link.__text, id, level+1) && childId;
+            const nodeHidden = hidden || listHidden || typeof node.hidden === 'string';
+            return parse(node, childId, link.href, link.__text, id, level+1, nodeHidden) && childId;
           }).filter(Boolean);
         } else {
-          const link = ol.li.a;
+          const node = ol.li;
+          const link = node.a;
           const childId = uniqueId();
-          childNodes.push(parse(ol.li, childId, link.href, link.__text, id, level+1) && childId);
+          const nodeHidden = hidden || listHidden || typeof node.hidden === 'string';
+          childNodes.push(parse(node, childId, link.href, link.__text, id, level+1, nodeHidden) && childId);
         }
       }
 
-      const isLeaf = childNodes.length === 0;
-      // We mainly care about leafs as those are the ones that contain pages and are thus open
-      if (isLeaf) {
+      if (id !== ROOT) {
         byManifestId[manifestId] = id;
         items.push(id);
       }
@@ -52,7 +54,8 @@ export default function toc(tocHtml, manifest, spine) {
       byId[id] = {
         childNodes,
         id,
-        isLeaf,
+        isLeaf: childNodes.length === 0,
+        hidden,
         href: hrefWithoutHash,
         label,
         level,

@@ -9,3 +9,7 @@ export const fixedLayoutOpf = parser.xml2js(fs.readFileSync(`${__dirname}/fixed-
 export const nestedTocHtml = parser.xml2js(fs.readFileSync(`${__dirname}/nested-toc.xhtml`, 'utf-8'));
 export const testSmil = parser.xml2js(fs.readFileSync(`${__dirname}/test.smil`, 'utf-8'))
 export const tocHtml = parser.xml2js(fs.readFileSync(`${__dirname}/toc.xhtml`, 'utf-8'));
+export const entireHiddenTocHtml = parser.xml2js(fs.readFileSync(`${__dirname}/entire-hidden-toc.xhtml`, 'utf-8'));
+export const hiddenSectionTocHtml = parser.xml2js(fs.readFileSync(`${__dirname}/hidden-section-toc.xhtml`, 'utf-8'));
+export const hiddenItemTocHtml = parser.xml2js(fs.readFileSync(`${__dirname}/hidden-item-toc.xhtml`, 'utf-8'));
+export const hiddenSingleItemTocHtml = parser.xml2js(fs.readFileSync(`${__dirname}/hidden-single-item-toc.xhtml`, 'utf-8'));
