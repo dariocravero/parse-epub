@@ -29,7 +29,7 @@ export default function toc(tocHtml, manifest, spine) {
       let childNodes = [];
 
       if (ol) {
-        if(ol.li.isArray()){
+        if(Array.isArray(ol.li)){
           childNodes = Array.from(ol.li).map(node => {
             const link = node.a;
             const childId = uniqueId();
@@ -38,7 +38,7 @@ export default function toc(tocHtml, manifest, spine) {
         }else{
           const link = ol.li.a;
           const childId = uniqueId();
-          childNodes = parse(node, childId, link.href, link.__text, id, level+1) && childId;
+          childNodes = parse(ol.li, childId, link.href, link.__text, id, level+1) && childId;
         }
       }
 
