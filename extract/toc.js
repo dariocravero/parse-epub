@@ -38,12 +38,11 @@ export default function toc(tocHtml, manifest, spine) {
         }else{
           const link = ol.li.a;
           const childId = uniqueId();
-          childNodes = parse(ol.li, childId, link.href, link.__text, id, level+1) && childId;
+          childNodes.push(parse(ol.li, childId, link.href, link.__text, id, level+1) && childId);
         }
       }
 
       const isLeaf = childNodes.length === 0;
-
       // We mainly care about leafs as those are the ones that contain pages and are thus open
       if (isLeaf) {
         byManifestId[manifestId] = id;
