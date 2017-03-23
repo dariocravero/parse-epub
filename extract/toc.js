@@ -9,8 +9,8 @@ export const ROOT = '__root__';
 
 export default function toc(tocHtml, manifest, spine) {
   const byId = {};
-  const byManifestId = {};
   const items = [];
+  const byManifestId = {};
   const tocRoot = findTocRoot(tocHtml.html.body);
   if (!tocRoot) {
     throw 'The root node of your navigation document (table of contents) could not be found. Please ensure the file contains a nav element with an attribute of epub:type="toc"';
@@ -46,10 +46,15 @@ export default function toc(tocHtml, manifest, spine) {
         }
       }
 
-      if (id !== ROOT) {
-        byManifestId[manifestId] = id;
-        items.push(id);
+      if (manifestId) {
+        if(manifestId in byManifestId) {
+          byManifestId[manifestId].push(id);
+        } else {
+          byManifestId[manifestId] = [id];
+        }
       }
+
+      items.push(id);
 
       byId[id] = {
         childNodes,
