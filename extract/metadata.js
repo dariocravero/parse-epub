@@ -37,10 +37,16 @@ const TAG = 'metadata';
 export default function metadata(parsedRootXml, manifest) {
   let ret = {};
   const metadataInfo = parsedRootXml.package.metadata;
-
+  const uniqueIdentifierId = parsedRootXml.package['unique-identifier'];
+  
   function attribute(attr, required) {
     try {
-      ret[attr] = metadataInfo[attr].__text;
+      const attrInfo = metadataInfo[attr];
+      if (Array.isArray(attrInfo) && attr === 'identifier') {
+        ret[attr] = attrInfo.find(attrItem => attrItem.id === uniqueIdentifierId).__text;
+      } else {
+        ret[attr] = attrInfo.__text;
+      }
     } catch(exception) {
       if (required) {
         ret[attr] = undefined;
