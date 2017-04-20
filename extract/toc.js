@@ -84,25 +84,27 @@ export default function toc(tocHtml, manifest, spine) {
 
   const pageListRoot = findNav(tocHtml.html.body, PAGE_LIST);
   if (pageListRoot) {
-    ret.pageList = getPageListData(pageListRoot);
+    ret.pageList = getPageListData(pageListRoot)
   }
 
   return ret;
 }
 
 function getPageListData(nav) {
-  const pageList = {
-    byId: {},
-    items: []
-  };
+  const byId = {};
+  const items = [];
 
-  return Array.from(nav.ol.li).reduce((ret, li) => {
+  Array.from(nav.ol.li).forEach(li => {
     if (li.hasOwnProperty('a')) {
-      ret.byId[li.a.__text] = li.a.href;
-      ret.items.push(li.a.__text);
+      byId[li.a.__text] = li.a.href;
+      items.push(li.a.__text);
     }
-    return ret;
-  }, pageList);
+  });
+
+  return {
+    byId,
+    items
+  }
 }
 
 function findNav(currentNode, navType) {
@@ -126,6 +128,7 @@ function isNavType(node, type) {
     return false;
   }
 }
+
 
 // TODO
 // - page-progression-direction
