@@ -5,7 +5,8 @@ import {
   hiddenSectionTocHtml,
   hiddenSingleItemTocHtml,
   nestedTocHtml,
-  tocHtml
+  tocHtml,
+  tocWithPageList
 } from './data.js';
 import extractManifest from '../extract/manifest.js';
 import extractSpine from '../extract/spine.js';
@@ -45,4 +46,10 @@ test('#extractHiddenSingleItemToc', () => {
   const manifest = extractManifest(contentOpf)
   const spine = extractSpine(contentOpf)
   expect(extractToc(hiddenSingleItemTocHtml, manifest, spine)).toMatchSnapshot();
+});
+
+test('#extractTocWithPageList', () => {
+  const manifest = extractManifest(contentOpf)
+  const spine = extractSpine(contentOpf)
+  expect(extractToc(tocWithPageList, manifest, spine)).toMatchSnapshot();
 });

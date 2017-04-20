@@ -3,15 +3,16 @@ import getTocItem from './get-toc-item.js';
 import uniqueId from '../unique-id.js';
 
 // Spec says we need to select the TOC using the epub:type=toc property
-const NAV_ATTRIBUTE = 'epub:type';
-const NAV_VALUE = 'toc';
+const EPUB_TYPE = 'epub:type';
+const NAV_ROOT = 'toc';
+const PAGE_LIST = 'page-list';
 export const ROOT = '__root__';
 
 export default function toc(tocHtml, manifest, spine) {
   const byId = {};
   const items = [];
   const byManifestId = {};
-  const tocRoot = findTocRoot(tocHtml.html.body);
+  const tocRoot = findNav(tocHtml.html.body, NAV_ROOT);
   if (!tocRoot) {
     throw 'The root node of your navigation document (table of contents) could not be found. Please ensure the file contains a nav element with an attribute of epub:type="toc"';
   }
@@ -75,34 +76,59 @@ export default function toc(tocHtml, manifest, spine) {
     }
   }
 
-  return {
+  const ret = {
     byId,
     byManifestId,
     items
   };
+
+  const pageListRoot = findNav(tocHtml.html.body, PAGE_LIST);
+  if (pageListRoot) {
+    ret.pageList = getPageListData(pageListRoot)
+  }
+
+  return ret;
 }
 
-function findTocRoot(currentNode) {
+function getPageListData(nav) {
+  const byId = {};
+  const items = [];
+
+  Array.from(nav.ol.li).forEach(li => {
+    if (li.hasOwnProperty('a')) {
+      byId[li.a.__text] = li.a.href;
+      items.push(li.a.__text);
+    }
+  });
+
+  return {
+    byId,
+    items
+  }
+}
+
+function findNav(currentNode, navType) {
   let found = false;
   Object.keys(currentNode).find(key => {
-    if (isRootNode(currentNode[key])) {
+    if (isNavType(currentNode[key], navType)) {
       found = currentNode[key];
       return true;
     }
     if (typeof currentNode[key] === 'object') {
-      return found = findTocRoot(currentNode[key]);
+      return found = findNav(currentNode[key], navType);
     }
   });
   return found;
 }
 
-function isRootNode(node) {
+function isNavType(node, type) {
   if (typeof node !== 'undefined') {
-    return (node.hasOwnProperty(NAV_ATTRIBUTE) && node[NAV_ATTRIBUTE] === NAV_VALUE && node.hasOwnProperty('ol'));
+    return (node.hasOwnProperty(EPUB_TYPE) && node[EPUB_TYPE] === type && node.hasOwnProperty('ol'));
   } else {
     return false;
   }
 }
+
 
 // TODO
 // - page-progression-direction
