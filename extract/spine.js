@@ -21,9 +21,11 @@ const PROPERTIES = {
 export default function spine(xml, tocItem=false) {
   // TODO This will need to change when we use the spine to navgate the book
   // and allow hidden toc items
-  const items = tocItem ?
-    xml.package.spine.itemref.filter(i => i.id !== tocItem) :
-    xml.package.spine.itemref;
+  let items = Array.isArray(xml.package.spine.itemref) ? xml.package.spine.itemref : [xml.package.spine.itemref];
+
+  if (tocItem) {
+    items = items.filter(i => i.id !== tocItem);
+  }
 
   const spine = normalise(
     items.map(({ idref:id, linear, properties}) => ({
