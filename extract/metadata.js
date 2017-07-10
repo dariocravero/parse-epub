@@ -38,7 +38,7 @@ export default function metadata(parsedRootXml, manifest) {
   let ret = {};
   const metadataInfo = parsedRootXml.package.metadata;
   const uniqueIdentifierId = parsedRootXml.package['unique-identifier'];
-  
+
   function attribute(attr, required) {
     try {
       const attrInfo = metadataInfo[attr];
@@ -64,21 +64,31 @@ export default function metadata(parsedRootXml, manifest) {
   let mediaDurationData = [];
   let mediaNarratorData = [];
 
-  metadataInfo.meta.forEach(item => {
-    if (item.property === ATTRIBUTES.PROPERTIES.mediaDuration) {
-      mediaDurationData.push(item);
-    } else if (item.property === ATTRIBUTES.PROPERTIES.mediaActiveClass) {
-      ret.mediaActiveClass = item.__text;
-    } else if (item.property === ATTRIBUTES.PROPERTIES.mediaNarrator) {
-      mediaNarratorData.push(item);
-    } else if (item.property === ATTRIBUTES.PROPERTIES.renditionLayout) {
-      ret.renditionLayout = item.__text;
-    } else if (item.property === ATTRIBUTES.PROPERTIES.renditionOrientation) {
-      ret.renditionOrientation = item.__text;
-    } else if (item.property === ATTRIBUTES.PROPERTIES.renditionSpread) {
-      ret.renditionSpread = item.__text;
-    }
-  });
+  if (metadataInfo.meta) {
+    const metaTags = Array.isArray(metadataInfo.meta) ? metadataInfo.meta : [metadataInfo.meta];
+    metaTags.forEach(item => {
+      switch (item.property) {
+        case ATTRIBUTES.PROPERTIES.mediaDuration:
+          mediaDurationData.push(item);
+          break;
+        case ATTRIBUTES.PROPERTIES.mediaActiveClass:
+          ret.mediaActiveClass = item.__text;
+          break;
+        case ATTRIBUTES.PROPERTIES.mediaNarrator:
+          mediaNarratorData.push(item);
+          break;
+        case ATTRIBUTES.PROPERTIES.renditionLayout:
+          ret.renditionLayout = item.__text;
+          break;
+        case ATTRIBUTES.PROPERTIES.renditionOrientation:
+          ret.renditionOrientation = item.__text;
+          break;
+        case ATTRIBUTES.PROPERTIES.renditionSpread:
+          ret.renditionSpread = item.__text;
+          break;
+      }
+    });
+  }
 
   if (mediaDurationData.length) {
     ret.mediaOverlayDurations = [];
